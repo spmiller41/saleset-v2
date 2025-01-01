@@ -4,7 +4,7 @@ public enum PeriodOfDay {
 
     MORNING ("Morning"),
     AFTERNOON ("Afternoon"),
-    Evening ("Evening");
+    EVENING("Evening");
 
     private final String periodOfDay;
 
