@@ -21,13 +21,15 @@ public interface EngagementEngine {
     }
 
     default String determineTargetPeriodOfDay(LocalTime previousFollowUpTime) {
-        if (previousFollowUpTime.isBefore(LocalTime.NOON)) {
-            return PeriodOfDay.Evening.toString();
-        } else if (previousFollowUpTime.isBefore(LocalTime.of(18, 0))) {
-            return PeriodOfDay.MORNING.toString();
-        } else {
-            return PeriodOfDay.AFTERNOON.toString();
-        }
+        if (previousFollowUpTime.isBefore(LocalTime.NOON)) return PeriodOfDay.EVENING.toString();
+        else if (previousFollowUpTime.isBefore(LocalTime.of(18, 0))) return PeriodOfDay.MORNING.toString();
+        else return PeriodOfDay.AFTERNOON.toString();
+    }
+
+    default String determinePeriodOfDay(LocalTime time) {
+        if (time.isBefore(LocalTime.NOON)) return PeriodOfDay.MORNING.toString();
+        else if (time.isBefore(LocalTime.of(18, 0))) return PeriodOfDay.AFTERNOON.toString();
+        else return PeriodOfDay.EVENING.toString();
     }
 
     default List<Event> filterByTargetedDayOfWeek(String targetDayOfWeek, List<Event> leadEventList) {
@@ -36,9 +38,15 @@ public interface EngagementEngine {
                 .collect(Collectors.toList());
     }
 
-    default List<Event> filterByTargetedTimeOfDay(String targetPeriodOfDay, List<Event> leadEventList) {
+    default List<Event> filterByTargetedPeriodOfDay(String targetPeriodOfDay, List<Event> leadEventList) {
         return leadEventList.stream()
                 .filter(event -> event.getPeriodOfDay().equalsIgnoreCase(targetPeriodOfDay))
+                .collect(Collectors.toList());
+    }
+
+    default List<Event> filterByFallbackPeriodOfDay(String previousPeriodOfDay, List<Event> leadEventList) {
+        return leadEventList.stream()
+                .filter(event -> !event.getPeriodOfDay().equalsIgnoreCase(previousPeriodOfDay))
                 .collect(Collectors.toList());
     }
 
