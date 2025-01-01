@@ -21,7 +21,7 @@ public class Lead {
 
     // FOREIGN KEY
     @Column(name = "address_id")
-    private int addressId;
+    private Integer addressId;
 
     @Column(name = "uuid")
     private String uuid;
@@ -71,11 +71,11 @@ public class Lead {
         this.contactId = contactId;
     }
 
-    public int getAddressId() {
+    public Integer getAddressId() {
         return addressId;
     }
 
-    public void setAddressId(int addressId) {
+    public void setAddressId(Integer addressId) {
         this.addressId = addressId;
     }
 
