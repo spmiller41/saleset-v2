@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -72,7 +73,12 @@ public class EngagementEngineImpl implements EngagementEngine {
 
     @Override
     public LocalDate determineFollowUpDate(LocalDateTime fromDate, double follow_up_divisor) {
-        return null;
+        long daysFromLastFollowUp = Math.abs(ChronoUnit.DAYS.between(fromDate.toLocalDate(), LocalDate.now()));
+        System.out.println("Days since lead created: " + daysFromLastFollowUp);
+        long daysUntilFollowUp = (long) (daysFromLastFollowUp / follow_up_divisor);
+        if (daysUntilFollowUp == 0) daysUntilFollowUp = 1;
+        System.out.println("Days until next follow-up: " + daysUntilFollowUp);
+        return LocalDate.now().plusDays(daysUntilFollowUp);
     }
 
     @Override
