@@ -20,11 +20,17 @@ public class Contact {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "phone_1")
-    private String phone1;
+    @Column(name = "primary_phone")
+    private String primaryPhone;
 
-    @Column(name = "phone_2")
-    private String phone2;
+    @Column(name = "primary_phone_type")
+    private String primaryPhoneType;
+
+    @Column(name = "secondary_phone")
+    private String secondaryPhone;
+
+    @Column(name = "secondary_phone_type")
+    private String secondaryPhoneType;
 
     public Contact() {}
 
@@ -32,9 +38,7 @@ public class Contact {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public void setId(int id) { this.id = id; }
 
     public String getFirstName() {
         return firstName;
@@ -60,21 +64,29 @@ public class Contact {
         this.email = email;
     }
 
-    public String getPhone1() {
-        return phone1;
+    public String getPrimaryPhone() {
+        return primaryPhone;
     }
 
-    public void setPhone1(String phone1) {
-        this.phone1 = phone1;
+    public void setPrimaryPhone(String primaryPhone) {
+        this.primaryPhone = primaryPhone;
     }
 
-    public String getPhone2() {
-        return phone2;
+    public String getSecondaryPhone() {
+        return secondaryPhone;
     }
 
-    public void setPhone2(String phone2) {
-        this.phone2 = phone2;
+    public void setSecondaryPhone(String secondaryPhone) {
+        this.secondaryPhone = secondaryPhone;
     }
+
+    public String getPrimaryPhoneType() { return primaryPhoneType; }
+
+    public void setPrimaryPhoneType(String primaryPhoneType) { this.primaryPhoneType = primaryPhoneType; }
+
+    public String getSecondaryPhoneType() { return secondaryPhoneType; }
+
+    public void setSecondaryPhoneType(String secondaryPhoneType) { this.secondaryPhoneType = secondaryPhoneType; }
 
     @Override
     public String toString() {
@@ -83,8 +95,10 @@ public class Contact {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", phone1='" + phone1 + '\'' +
-                ", phone2='" + phone2 + '\'' +
+                ", primaryPhone='" + primaryPhone + '\'' +
+                ", primaryPhoneType='" + primaryPhoneType + '\'' +
+                ", secondaryPhone='" + secondaryPhone + '\'' +
+                ", secondaryPhoneType='" + secondaryPhoneType + '\'' +
                 '}';
     }
 
