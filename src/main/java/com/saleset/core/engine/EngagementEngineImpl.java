@@ -31,6 +31,7 @@ import java.util.List;
 @Service
 public class EngagementEngineImpl implements EngagementEngine {
 
+
     /**
      * Determines the follow-up time for a lead based on previous interactions, target day,
      * and target period of day. If no relevant interactions exist, falls back to peak hours
@@ -72,6 +73,7 @@ public class EngagementEngineImpl implements EngagementEngine {
         LocalTime peakHour = determinePeakHour(targetPeriodOfDay);
         return generateDeterminedTime(filteredEventList, peakHour);
     }
+
 
     /**
      * Determines the next follow-up date based on the time since the last follow-up
