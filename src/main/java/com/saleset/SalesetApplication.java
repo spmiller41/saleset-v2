@@ -29,7 +29,6 @@ public class SalesetApplication {
 		SpringApplication.run(SalesetApplication.class, args);
 	}
 
-
 	@Autowired
 	private ContactDao contactDao;
 
@@ -56,11 +55,11 @@ public class SalesetApplication {
 			LocalDateTime previousFollowUp = LocalDateTime.of(
 					LocalDate.of(2025, 1, 1),
 					LocalTime.of(10, 22));
+
 			LocalDate targetDate = engagementEngine.determineFollowUpDate(createdAt, 4.0);
 			System.out.println("Follow-up Date: " + targetDate);
+
 			List<Event> events = new ArrayList<>();
-
-
 			Event event_1 = new Event();
 			event_1.setEventType("Click");
 			event_1.setCreatedAt(LocalDateTime.of(
@@ -70,51 +69,11 @@ public class SalesetApplication {
 			event_1.setPeriodOfDay("Morning");
 			events.add(event_1);
 
-			/*
-			Event event_2 = new Event();
-			event_2.setEventType("Open");
-			event_2.setCreatedAt(LocalDateTime.of(
-					LocalDate.of(2024, 12, 30),
-					LocalTime.of(8, 9)));
-			event_2.setDayOfWeek("Monday");
-			event_2.setPeriodOfDay("Morning");
-			events.add(event_2);
-
-			Event event_3 = new Event();
-			event_3.setEventType("Click");
-			event_3.setCreatedAt(LocalDateTime.of(
-					LocalDate.of(2024, 12, 30),
-					LocalTime.of(14, 27)));
-			event_3.setDayOfWeek("Monday");
-			event_3.setPeriodOfDay("Afternoon");
-			events.add(event_3);
-
-			Event event_4 = new Event();
-			event_4.setEventType("Open");
-			event_4.setCreatedAt(LocalDateTime.of(
-					LocalDate.of(2024, 12, 28),
-					LocalTime.of(20, 41)));
-			event_4.setDayOfWeek("Saturday");
-			event_4.setPeriodOfDay("Evening");
-			events.add(event_4);
-
-			Event event_5 = new Event();
-			event_5.setEventType("Open");
-			event_5.setCreatedAt(LocalDateTime.of(
-					LocalDate.of(2024, 12, 27),
-					LocalTime.of(11, 36)));
-			event_5.setDayOfWeek("Friday");
-			event_5.setPeriodOfDay("Morning");
-			events.add(event_5);
-			*/
-
-
 			LocalTime determinedTime = engagementEngine.determineFollowUpTime(previousFollowUp, targetDate, events);
 			System.out.println("NEXT FOLLOW-UP " + LocalDateTime.of(targetDate, determinedTime));
 
 		};
 	}
-
 
 }
 
@@ -163,4 +122,42 @@ event.setDayOfWeek("Wednesday");
 event.setPeriodOfDay("Morning");
 Optional<Event> optEvent = eventDao.safeInsert(event);
 optEvent.ifPresent(newEvent -> System.out.println("Event Inserted: " + newEvent));
+*/
+
+/*
+Event event_2 = new Event();
+event_2.setEventType("Open");
+event_2.setCreatedAt(LocalDateTime.of(
+		LocalDate.of(2024, 12, 30),
+		LocalTime.of(8, 9)));
+event_2.setDayOfWeek("Monday");
+event_2.setPeriodOfDay("Morning");
+events.add(event_2);
+
+Event event_3 = new Event();
+event_3.setEventType("Click");
+event_3.setCreatedAt(LocalDateTime.of(
+		LocalDate.of(2024, 12, 30),
+		LocalTime.of(14, 27)));
+event_3.setDayOfWeek("Monday");
+event_3.setPeriodOfDay("Afternoon");
+events.add(event_3);
+
+Event event_4 = new Event();
+event_4.setEventType("Open");
+event_4.setCreatedAt(LocalDateTime.of(
+		LocalDate.of(2024, 12, 28),
+		LocalTime.of(20, 41)));
+event_4.setDayOfWeek("Saturday");
+event_4.setPeriodOfDay("Evening");
+events.add(event_4);
+
+Event event_5 = new Event();
+event_5.setEventType("Open");
+event_5.setCreatedAt(LocalDateTime.of(
+		LocalDate.of(2024, 12, 27),
+		LocalTime.of(11, 36)));
+event_5.setDayOfWeek("Friday");
+event_5.setPeriodOfDay("Morning");
+events.add(event_5);
 */
