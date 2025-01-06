@@ -1,6 +1,7 @@
 package com.saleset.core.engine;
 
 import com.saleset.core.entities.Event;
+import com.saleset.core.enums.LeadStage;
 import com.saleset.core.enums.PeriodOfDay;
 import org.springframework.stereotype.Service;
 
@@ -10,79 +11,114 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+/**
+ * Implementation of the EngagementEngine interface that provides core functionality
+ * for determining follow-up times, follow-up dates, and lead stage transitions.
+ * <p>
+ * This class is responsible for applying business logic to analyze lead interactions,
+ * determine the optimal time for follow-ups, and adjust lead stages based on elapsed time.
+ * <p>
+ * Key Features:
+ * - Calculates the next follow-up time by analyzing lead interactions and applying fallback logic.
+ * - Determines follow-up dates based on time elapsed since the last follow-up and a dynamic divisor.
+ * - Evaluates lead stages to ensure proper progression based on predefined thresholds.
+ * <p>
+ * This implementation also ensures that follow-ups occur only during acceptable hours (8:00 AM to 8:00 PM),
+ * with random deviations for a more humanized interaction approach.
+ * <p>
+ * Annotated with @Service to integrate with Spring's dependency injection framework.
+ */
 @Service
 public class EngagementEngineImpl implements EngagementEngine {
+
+    /**
+     * Determines the follow-up time for a lead based on previous interactions, target day,
+     * and target period of day. If no relevant interactions exist, falls back to peak hours
+     * and adjusts the time within acceptable messaging hours.
+     *
+     * @param previousFollowUp the time of the previous follow-up
+     * @param targetDate the date for the next follow-up
+     * @param leadEventList the list of events associated with the lead
+     * @return the LocalTime for the next follow-up
+     */
     @Override
     public LocalTime determineFollowUpTime(LocalDateTime previousFollowUp, LocalDate targetDate, List<Event> leadEventList) {
         String targetDayOfWeek = determineTargetDayOfWeek(targetDate);
-        System.out.println("Target Day of Week: " + targetDayOfWeek);
         PeriodOfDay targetPeriodOfDay = determineTargetPeriodOfDay(previousFollowUp.toLocalTime());
-        System.out.println("Target Period-Of-Day: " + targetPeriodOfDay);
 
         List<Event> eventList = filterByTargetedDayOfWeek(targetDayOfWeek, leadEventList);
-        System.out.println("List of events filtered to the targeted day of week: " + eventList);
         if (eventList.isEmpty()) {
             eventList = filterByTimePeriod(7, leadEventList);
-            System.out.println("No events for targeted day of week. Fall back to all events in the last 7 days: " + eventList);
             if (eventList.isEmpty()) {
                 LocalTime peakHour = determinePeakHour(targetPeriodOfDay);
-                System.out.println("Peak Hour: " + peakHour);
-                LocalTime determinedTime = deviateByMinutes(peakHour, 2);
-                System.out.println("No events in the last 7 days, default time determined from target period of day: " + determinedTime);
-                return determinedTime;
+                return deviateByMinutes(peakHour, 2);
             }
         }
 
         List<Event> filteredEventList = filterByTargetedPeriodOfDay(targetPeriodOfDay.toString(), eventList);
-        System.out.println("Filtered events including target period of day: " + filteredEventList);
         if (filteredEventList.isEmpty()) {
-            System.out.println("No events on this day with targeted period of day.");
             PeriodOfDay previousPeriodOfDay = determinePeriodOfDay(previousFollowUp.toLocalTime());
-            System.out.println("Previous period of day used: " + previousPeriodOfDay);
             filteredEventList = filterByFallbackPeriodOfDay(previousPeriodOfDay, eventList);
-            System.out.println("Events with fallback period of day: " + filteredEventList);
             if (filteredEventList.isEmpty()) {
-                System.out.println("No events matching the fallback period of day used.");
                 LocalTime peakHour = determinePeakHour(previousPeriodOfDay);
-                System.out.println("Using previous period of day as fallback: " + previousPeriodOfDay);
-                System.out.println("Peak Hour: " + peakHour);
-                LocalTime determinedTime = findClosestEventTime(eventList, peakHour);
-                determinedTime = deviateByMinutes(determinedTime, 1);
-                System.out.println("Determined time: " + determinedTime);
-                return determinedTime;
+                return generateDeterminedTime(filteredEventList, peakHour);
             } else {
                 targetPeriodOfDay = determinePeriodOfDay(filteredEventList.get(0).getCreatedAt().toLocalTime());
-                System.out.println("We have a period of day that was not used in last follow up: " + targetPeriodOfDay);
                 LocalTime peakHour = determinePeakHour(targetPeriodOfDay);
-                System.out.println("Peak Hour: " + peakHour);
-                LocalTime determinedTime = findClosestEventTime(filteredEventList, peakHour);
-                determinedTime = deviateByMinutes(determinedTime, 1);
-                System.out.println("Determined time: " + determinedTime);
-                return determinedTime;
+                return generateDeterminedTime(filteredEventList, peakHour);
             }
-        } else {
-            System.out.println("We have an event for the targeted period of day: " + targetPeriodOfDay);
-            LocalTime peakHour = determinePeakHour(targetPeriodOfDay);
-            System.out.println("Peak Hour: " + peakHour);
-            LocalTime determinedTime = findClosestEventTime(filteredEventList, peakHour);
-            determinedTime = deviateByMinutes(determinedTime, 1);
-            System.out.println("Determined time: " + determinedTime);
-            return determinedTime;
         }
+
+        LocalTime peakHour = determinePeakHour(targetPeriodOfDay);
+        return generateDeterminedTime(filteredEventList, peakHour);
     }
 
+    /**
+     * Determines the next follow-up date based on the time since the last follow-up
+     * and a divisor that adjusts the frequency of follow-ups.
+     *
+     * @param fromDate the date and time of the last follow-up
+     * @param follow_up_divisor the divisor to calculate follow-up frequency
+     * @return the LocalDate for the next follow-up
+     */
     @Override
     public LocalDate determineFollowUpDate(LocalDateTime fromDate, double follow_up_divisor) {
         long daysFromLastFollowUp = Math.abs(ChronoUnit.DAYS.between(fromDate.toLocalDate(), LocalDate.now()));
-        System.out.println("Days since lead created: " + daysFromLastFollowUp);
         long daysUntilFollowUp = (long) (daysFromLastFollowUp / follow_up_divisor);
         if (daysUntilFollowUp == 0) daysUntilFollowUp = 1;
-        System.out.println("Days until next follow-up: " + daysUntilFollowUp);
         return LocalDate.now().plusDays(daysUntilFollowUp);
     }
 
+
+    /**
+     * Determines the next stage of the lead based on the time elapsed since its creation.
+     * If the lead is older than a specified maximum number of days in the current stage,
+     * it transitions to the next stage.
+     *
+     * @param fromDate the date and time the lead was created
+     * @param maxDaysInStage the maximum number of days a lead can stay in the current stage
+     * @return the LeadStage indicating the current or next stage of the lead
+     */
     @Override
-    public String determineNextStage(LocalDateTime fromDate, int maxDaysInStage) {
-        return "";
+    public LeadStage determineNextStage(LocalDateTime fromDate, int maxDaysInStage) {
+        long daysSinceCreation = ChronoUnit.DAYS.between(fromDate.toLocalDate(), LocalDate.now());
+        return daysSinceCreation >= maxDaysInStage ? LeadStage.AGED_LOW_PRIORITY : LeadStage.NEW;
     }
+
+
+    private LocalTime generateDeterminedTime(List<Event> events, LocalTime peakHour) {
+        LocalTime determinedTime = findClosestEventTime(events, peakHour);
+        LocalTime earliestTime = LocalTime.of(8, 0); // 8:00am
+        LocalTime latestTime = LocalTime.of(20, 0); // 8:00pm
+
+        if (determinedTime.isBefore(earliestTime) || determinedTime.isAfter(latestTime)) {
+            determinedTime = deviateByMinutes(peakHour, 2);
+        } else {
+            determinedTime = deviateByMinutes(determinedTime, 1);
+        }
+
+        return determinedTime;
+    }
+
+
 }
