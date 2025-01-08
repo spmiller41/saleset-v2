@@ -1,13 +1,12 @@
 package com.saleset;
 
-import com.saleset.core.dao.AddressDao;
-import com.saleset.core.dao.ContactDao;
-import com.saleset.core.dao.EventDao;
-import com.saleset.core.dao.LeadDao;
-import com.saleset.core.engine.EngagementEngineImpl;
+import com.saleset.core.dao.AddressRepo;
+import com.saleset.core.dao.ContactRepo;
+import com.saleset.core.dao.EventRepo;
+import com.saleset.core.dao.LeadRepo;
+import com.saleset.core.service.engine.EngagementEngineImpl;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Contact;
-import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,11 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -30,16 +25,16 @@ public class SalesetApplication {
 	}
 
 	@Autowired
-	private ContactDao contactDao;
+	private ContactRepo contactRepo;
 
 	@Autowired
-	private AddressDao addressDao;
+	private AddressRepo addressRepo;
 
 	@Autowired
-	private LeadDao leadDao;
+	private LeadRepo leadRepo;
 
 	@Autowired
-	private EventDao eventDao;
+	private EventRepo eventRepo;
 
 	@Autowired
 	private EngagementEngineImpl engagementEngine;
@@ -48,29 +43,33 @@ public class SalesetApplication {
 	public CommandLineRunner demo() {
 		return (args) -> {
 
-			LocalDateTime createdAt = LocalDateTime.of(
-					LocalDate.of(2025, 1, 3),
-					LocalTime.of(13, 47));
+			Contact contact = new Contact();
+			contact.setId(1);
+			contact.setFirstName("John");
+			contact.setLastName("Doe");
+			contact.setEmail("johnd123@testing.com");
+			contact.setPrimaryPhone("+15162134401");
+			Optional<Contact> optContact = contactRepo.safeInsert(contact);
+			optContact.ifPresent(newContact -> System.out.println("Contact Inserted: " + newContact));
 
-			LocalDateTime previousFollowUp = LocalDateTime.of(
-					LocalDate.of(2025, 1, 1),
-					LocalTime.of(10, 22));
+			Address address = new Address();
+			address.setId(1);
+			address.setStreet("144 Fake St");
+			address.setCity("Test City");
+			address.setState("New York");
+			address.setZipCode("00551");
+			Optional<Address> optAddress = addressRepo.safeInsert(address);
+			optAddress.ifPresent(newAddress -> System.out.println("Address Inserted: " + newAddress));
 
-			LocalDate targetDate = engagementEngine.determineFollowUpDate(createdAt, 4.0);
-			System.out.println("Follow-up Date: " + targetDate);
-
-			List<Event> events = new ArrayList<>();
-			Event event_1 = new Event();
-			event_1.setEventType("Click");
-			event_1.setCreatedAt(LocalDateTime.of(
-					LocalDate.of(2024, 12, 29),
-					LocalTime.of(11, 27)));
-			event_1.setDayOfWeek("Sunday");
-			event_1.setPeriodOfDay("Morning");
-			events.add(event_1);
-
-			LocalTime determinedTime = engagementEngine.determineFollowUpTime(previousFollowUp, targetDate, events);
-			System.out.println("NEXT FOLLOW-UP " + LocalDateTime.of(targetDate, determinedTime));
+			Lead lead  = new Lead();
+			lead.setCreatedAt(LocalDateTime.now());
+			lead.setUuid("1234-test-5678-test-91011");
+			lead.setStageUpdatedAt(LocalDateTime.now());
+			lead.setBookingPageUrl("testing-booking-page.com");
+			lead.setExternalId("zcrm_30231133221101");
+			lead.setStage("New");
+			lead.setLeadSource("Internet");
+			lead.setSubSource("Solar Insight");
 
 		};
 	}
@@ -80,23 +79,6 @@ public class SalesetApplication {
 
 
 /*
-Contact contact = new Contact();
-contact.setFirstName("John");
-contact.setLastName("Doe");
-contact.setEmail("johnd123@testing.com");
-contact.setPhone1("+15162134401");
-Optional<Contact> optContact = contactDao.safeInsert(contact);
-optContact.ifPresent(newContact -> System.out.println("Contact Inserted: " + newContact));
-
-
-Address address = new Address();
-address.setStreet("144 Fake St");
-address.setCity("Test City");
-address.setState("New York");
-address.setZipCode("00551");
-Optional<Address> optAddress = addressDao.safeInsert(address);
-optAddress.ifPresent(newAddress -> System.out.println("Address Inserted: " + newAddress));
-
 
 Lead lead = new Lead();
 optContact.ifPresent(contactData -> lead.setContactId(contactData.getId()));
@@ -160,4 +142,29 @@ event_5.setCreatedAt(LocalDateTime.of(
 event_5.setDayOfWeek("Friday");
 event_5.setPeriodOfDay("Morning");
 events.add(event_5);
+
+LocalDateTime createdAt = LocalDateTime.of(
+LocalDate.of(2025, 1, 3),
+LocalTime.of(13, 47));
+
+LocalDateTime previousFollowUp = LocalDateTime.of(
+LocalDate.of(2025, 1, 1),
+LocalTime.of(10, 22));
+
+LocalDate targetDate = engagementEngine.determineFollowUpDate(createdAt, 4.0);
+System.out.println("Follow-up Date: " + targetDate);
+
+List<Event> events = new ArrayList<>();
+Event event_1 = new Event();
+event_1.setEventType("Click");
+event_1.setCreatedAt(LocalDateTime.of(
+LocalDate.of(2024, 12, 29),
+LocalTime.of(11, 27)));
+event_1.setDayOfWeek("Sunday");
+event_1.setPeriodOfDay("Morning");
+events.add(event_1);
+
+LocalTime determinedTime = engagementEngine.determineFollowUpTime(previousFollowUp, targetDate, events);
+System.out.println("NEXT FOLLOW-UP " + LocalDateTime.of(targetDate, determinedTime));
+
 */

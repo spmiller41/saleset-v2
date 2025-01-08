@@ -1,4 +1,4 @@
-package com.saleset.core.engine;
+package com.saleset.core.service.engine;
 
 import com.saleset.core.entities.Event;
 import com.saleset.core.enums.LeadStage;

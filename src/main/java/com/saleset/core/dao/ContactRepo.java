@@ -1,6 +1,5 @@
 package com.saleset.core.dao;
 
-import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Contact;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
@@ -13,28 +12,28 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class AddressDao {
+public class ContactRepo {
 
-    private static final Logger logger = LoggerFactory.getLogger(AddressDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContactRepo.class);
     private final EntityManager entityManager;
 
     @Autowired
-    public AddressDao(EntityManager entityManager) {
+    public ContactRepo(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     // Remove Transactional and use at service layer after testing.
     @Transactional
-    public Optional<Address> safeInsert(Address address) {
+    public Optional<Contact> safeInsert(Contact contact) {
         try {
-            entityManager.persist(address);
+            entityManager.persist(contact);
 
             // Ensure immediate DB sync
             entityManager.flush();
 
-            return Optional.of(address);
+            return Optional.of(contact);
         } catch (PersistenceException ex) {
-            logger.error("Insert failed. Address: {} --- Message: {}", address, ex.getMessage());
+            logger.error("Insert failed. Contact: {} --- Message: {}", contact, ex.getMessage());
             return Optional.empty();
         }
     }

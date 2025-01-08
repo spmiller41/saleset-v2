@@ -1,6 +1,6 @@
 package com.saleset.core.dao;
 
-import com.saleset.core.entities.Contact;
+import com.saleset.core.entities.Event;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
@@ -12,28 +12,28 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class ContactDao {
+public class EventRepo {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContactDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventRepo.class);
     private final EntityManager entityManager;
 
     @Autowired
-    public ContactDao(EntityManager entityManager) {
+    public EventRepo(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     // Remove Transactional and use at service layer after testing.
     @Transactional
-    public Optional<Contact> safeInsert(Contact contact) {
+    public Optional<Event> safeInsert(Event event) {
         try {
-            entityManager.persist(contact);
+            entityManager.persist(event);
 
             // Ensure immediate DB sync
             entityManager.flush();
 
-            return Optional.of(contact);
+            return Optional.of(event);
         } catch (PersistenceException ex) {
-            logger.error("Insert failed. Contact: {} --- Message: {}", contact, ex.getMessage());
+            logger.error("Insert failed. Event: {} --- Message: {}", event, ex.getMessage());
             return Optional.empty();
         }
     }
