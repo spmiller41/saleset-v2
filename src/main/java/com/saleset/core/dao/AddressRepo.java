@@ -1,7 +1,9 @@
 package com.saleset.core.dao;
 
 import com.saleset.core.entities.Address;
+import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -34,6 +36,20 @@ public class AddressRepo {
             return Optional.of(address);
         } catch (PersistenceException ex) {
             logger.error("Insert failed. Address: {} --- Message: {}", address, ex.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
+    public Optional<Address> findAddressByLead(Lead lead) {
+        String query = "SELECT a FROM Address a WHERE a.id = :addressId";
+
+        try {
+            return Optional.of(entityManager.createQuery(query, Address.class)
+                    .setParameter("addressId", lead.getAddressId())
+                    .getSingleResult());
+        } catch (NoResultException ex) {
             return Optional.empty();
         }
     }

@@ -1,5 +1,6 @@
 package com.saleset.core.entities;
 
+import com.saleset.core.dto.LeadDataTransfer;
 import jakarta.persistence.*;
 
 @Entity
@@ -24,6 +25,13 @@ public class Address {
     private String zipCode;
 
     public Address() {}
+
+    public Address(LeadDataTransfer leadData) {
+        setStreet(leadData.getStreet());
+        setCity(leadData.getCity());
+        setState(leadData.getState());
+        setZipCode(leadData.getZipCode());
+    }
 
     public int getId() {
         return id;

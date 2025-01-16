@@ -1,25 +1,21 @@
 package com.saleset.core.service.transaction;
 
-import com.saleset.core.dao.AddressRepo;
-import com.saleset.core.dao.ContactRepo;
-import com.saleset.core.dao.LeadRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.entities.Address;
 
-@Service
-public class LeadTransactionManager {
+public interface LeadTransactionManager {
 
-    private ContactRepo contactRepo;
-    private AddressRepo addressRepo;
-    private LeadRepo leadRepo;
+    void manageLead(LeadDataTransfer leadData);
 
-    @Autowired
-    public LeadTransactionManager(ContactRepo contactRepo, AddressRepo addressRepo, LeadRepo leadRepo) {
-        this.contactRepo = contactRepo;
-        this.addressRepo = addressRepo;
-        this.leadRepo = leadRepo;
+    default boolean isExistingAddress(Address address, LeadDataTransfer leadData) {
+        boolean addressMatch = address.getStreet().equalsIgnoreCase(leadData.getStreet())
+                && address.getZipCode().equalsIgnoreCase(leadData.getZipCode());
+        if (addressMatch) return true;
+
+        // Fallback
+        return address.getStreet().equalsIgnoreCase(leadData.getStreet())
+                && address.getCity().equalsIgnoreCase(leadData.getCity())
+                && address.getState().equalsIgnoreCase(leadData.getState());
     }
-
-
 
 }

@@ -1,5 +1,6 @@
 package com.saleset.core.dao;
 
+import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -34,6 +37,32 @@ public class LeadRepo {
             return Optional.of(lead);
         } catch (PersistenceException ex) {
             logger.error("Insert failed. Lead: {} --- Message: {}", lead, ex.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
+    public List<Lead> findLeadByContact(Contact contact) {
+        String query = "SELECT l FROM Lead l WHERE l.contactId = :contactId";
+
+        return entityManager.createQuery(query, Lead.class)
+                .setParameter("contactId", contact.getId())
+                .getResultList();
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
+    public Optional<Lead> safeUpdate(Lead lead) {
+        try {
+            Lead updateLead = entityManager.merge(lead);
+
+            // Ensure immediate DB sync
+            entityManager.flush();
+
+            return Optional.of(updateLead);
+        } catch (PersistenceException ex) {
+            logger.error("Update failed. Lead: {} --- Message: {}", lead, ex.getMessage());
             return Optional.empty();
         }
     }

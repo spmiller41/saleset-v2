@@ -1,10 +1,13 @@
 package com.saleset.core.entities;
 
+import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.enums.LeadStage;
 import jakarta.persistence.*;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "leads")
@@ -57,6 +60,19 @@ public class Lead {
 
     public int getId() {
         return id;
+    }
+
+    public Lead(LeadDataTransfer leadData, Contact contact, Address address) {
+        setContactId(contact.getId());
+        setAddressId(address.getId());
+        setUuid(UUID.randomUUID().toString());
+        setCreatedAt(LocalDateTime.now());
+        setStage(LeadStage.NEW.toString());
+        setStageUpdatedAt(LocalDateTime.now());
+        setBookingPageUrl("testing.booking.com");
+        setLeadSource(leadData.getLeadSource());
+        setSubSource(leadData.getSubSource());
+        setExternalId(leadData.getExternalId());
     }
 
     public void setId(int id) {
