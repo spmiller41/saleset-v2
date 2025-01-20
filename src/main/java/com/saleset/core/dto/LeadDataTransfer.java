@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * - {@code lead_source}: Source from which the lead originated.<p>
  * - {@code sub_source}: Sub-source for finer lead tracking.<p>
  * - {@code external_id}: External ID for uniquely identifying leads across systems.<p>
+ * - {@code stage}: Stage of the current lead <p>
+ * - Note: The stage of the lead MUST include 'New', 'Retargeted_No_Show', or 'Retargeted_Rehash'.
  */
 public class LeadDataTransfer {
 
@@ -62,6 +64,9 @@ public class LeadDataTransfer {
 
     @JsonProperty("external_id")
     private String externalId;
+
+    @JsonProperty("stage")
+    private String stage;
 
     public String getFirstName() {
         return firstName;
@@ -167,6 +172,14 @@ public class LeadDataTransfer {
         this.externalId = externalId;
     }
 
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
     @Override
     public String toString() {
         return "LeadDataTransfer{" +
@@ -183,6 +196,7 @@ public class LeadDataTransfer {
                 ", leadSource='" + leadSource + '\'' +
                 ", subSource='" + subSource + '\'' +
                 ", externalId='" + externalId + '\'' +
+                ", stage='" + stage + '\'' +
                 '}';
     }
 
