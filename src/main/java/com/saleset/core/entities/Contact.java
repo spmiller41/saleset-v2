@@ -1,5 +1,6 @@
 package com.saleset.core.entities;
 
+import com.saleset.core.dto.LeadDataTransfer;
 import jakarta.persistence.*;
 
 @Entity
@@ -33,6 +34,16 @@ public class Contact {
     private String secondaryPhoneType;
 
     public Contact() {}
+
+    public Contact(LeadDataTransfer leadData) {
+        setFirstName(leadData.getFirstName());
+        setLastName(leadData.getLastName());
+        setEmail(leadData.getEmail());
+        setPrimaryPhone(leadData.getPrimaryPhone());
+        setSecondaryPhone(leadData.getSecondaryPhone());
+        setPrimaryPhoneType(leadData.getPrimaryPhoneType().toString());
+        setSecondaryPhoneType(leadData.getSecondaryPhoneType().toString());
+    }
 
     public int getId() {
         return id;
