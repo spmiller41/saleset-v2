@@ -75,6 +75,18 @@ public class Lead {
         setExternalId(leadData.getExternalId());
     }
 
+    public Lead(LeadDataTransfer leadData, Contact contact) {
+        setContactId(contact.getId());
+        setUuid(UUID.randomUUID().toString());
+        setCreatedAt(LocalDateTime.now());
+        setStage(LeadStage.NEW.toString());
+        setStageUpdatedAt(LocalDateTime.now());
+        setBookingPageUrl("testing.booking.com");
+        setLeadSource(leadData.getLeadSource());
+        setSubSource(leadData.getSubSource());
+        setExternalId(leadData.getExternalId());
+    }
+
     public void setId(int id) {
         this.id = id;
     }
