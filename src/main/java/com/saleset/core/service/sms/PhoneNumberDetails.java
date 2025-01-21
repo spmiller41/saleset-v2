@@ -10,8 +10,8 @@ public class PhoneNumberDetails {
         this.lineType = lineType;
     }
 
-    public String getType() {
-        return this.lineType.toString();
+    public PhoneLineType getType() {
+        return this.lineType;
     }
 
 }
