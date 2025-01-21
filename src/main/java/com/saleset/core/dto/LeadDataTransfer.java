@@ -1,6 +1,7 @@
 package com.saleset.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.saleset.core.enums.PhoneLineType;
 
 /**
  * Represents the data transfer object (DTO) for lead information.
@@ -67,6 +68,10 @@ public class LeadDataTransfer {
 
     @JsonProperty("stage")
     private String stage;
+
+    private PhoneLineType primaryPhoneType;
+
+    private PhoneLineType secondaryPhoneType;
 
     public String getFirstName() {
         return firstName;
@@ -178,6 +183,22 @@ public class LeadDataTransfer {
 
     public void setStage(String stage) {
         this.stage = stage;
+    }
+
+    public PhoneLineType getPrimaryPhoneType() {
+        return primaryPhoneType;
+    }
+
+    public void setPrimaryPhoneType(PhoneLineType primaryPhoneType) {
+        this.primaryPhoneType = primaryPhoneType;
+    }
+
+    public PhoneLineType getSecondaryPhoneType() {
+        return secondaryPhoneType;
+    }
+
+    public void setSecondaryPhoneType(PhoneLineType secondaryPhoneType) {
+        this.secondaryPhoneType = secondaryPhoneType;
     }
 
     @Override
