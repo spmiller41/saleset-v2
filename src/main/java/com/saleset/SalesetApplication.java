@@ -5,10 +5,16 @@ import com.saleset.core.dao.ContactRepo;
 import com.saleset.core.dao.EventRepo;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.enums.PhoneLineType;
 import com.saleset.core.service.engine.EngagementEngineImpl;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
+import com.saleset.core.service.sms.PhoneNumberDetails;
+import com.saleset.core.service.sms.TwilioManager;
+import com.saleset.core.util.PhoneNumberNormalizer;
+import com.twilio.Twilio;
+import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,13 +32,19 @@ public class SalesetApplication {
 	}
 
 	/*
+	@Autowired
+	private TwilioManager twilioManager;
+
 	@Bean
 	public CommandLineRunner demo() {
 		return (args) -> {
-
+			Optional<String> optNormalized = PhoneNumberNormalizer.normalizeToE164("+1(631) 889-5508");
+			optNormalized.ifPresent(System.out::println);
 		};
 	}
 	*/
+
+
 
 }
 
