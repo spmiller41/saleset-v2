@@ -3,7 +3,8 @@ package com.saleset.core.enums;
 public enum PhoneLineType {
 
     MOBILE("Mobile"),
-    LANDLINE("Landline");
+    LANDLINE("Landline"),
+    INVALID("Invalid");
 
     private final String lineType;
 
