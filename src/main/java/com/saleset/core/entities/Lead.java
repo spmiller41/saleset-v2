@@ -69,6 +69,8 @@ public class Lead {
         setCreatedAt(LocalDateTime.now());
         setStage(LeadStage.NEW.toString());
         setStageUpdatedAt(LocalDateTime.now());
+        setNextFollowUp(LocalDateTime.now().plusMinutes(6));
+        setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
         setBookingPageUrl("testing.booking.com");
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
@@ -81,6 +83,8 @@ public class Lead {
         setCreatedAt(LocalDateTime.now());
         setStage(LeadStage.NEW.toString());
         setStageUpdatedAt(LocalDateTime.now());
+        setNextFollowUp(LocalDateTime.now().plusMinutes(6));
+        setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
         setBookingPageUrl("testing.booking.com");
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());

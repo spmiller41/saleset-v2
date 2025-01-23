@@ -40,9 +40,15 @@ public class Contact {
         setLastName(leadData.getLastName());
         setEmail(leadData.getEmail());
         setPrimaryPhone(leadData.getPrimaryPhone());
-        setSecondaryPhone(leadData.getSecondaryPhone());
         setPrimaryPhoneType(leadData.getPrimaryPhoneType().toString());
-        setSecondaryPhoneType(leadData.getSecondaryPhoneType().toString());
+
+        // Only set Secondary Phone and Type if the phone exists
+        if (leadData.getSecondaryPhone() != null) {
+            setSecondaryPhone(leadData.getSecondaryPhone());
+            setSecondaryPhoneType(leadData.getSecondaryPhoneType() != null
+                    ? leadData.getSecondaryPhoneType().toString()
+                    : null);
+        }
     }
 
     public int getId() {
