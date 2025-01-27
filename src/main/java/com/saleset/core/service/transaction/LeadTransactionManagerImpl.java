@@ -164,6 +164,8 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
                     return;
                 }
 
+
+                // BUG IS RIGHT HERE!!!!!!
                 if (lead.getAddressId() != null) {
                     addressRepo.findAddressByLead(lead)
                             .ifPresentOrElse(
@@ -312,6 +314,8 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
      * and then creates a new lead associated with the contact and the inserted address.
      */
     private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact, Lead lead) {
+        // !!!BUG MAY BE HERE!!! 1/27/2025 
+        System.out.println("processNewAddressExistingContact has been called.");
         if (leadAddressIsValid(leadData)) {
             Optional<Address> optNewAddress = addressRepo.safeInsert(new Address(leadData));
             optNewAddress.ifPresent(newAddress -> {
