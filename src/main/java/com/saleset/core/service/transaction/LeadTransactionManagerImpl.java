@@ -71,16 +71,20 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
         if (!validateAndNormalizePhones(leadData)) return;
 
         // 2: Lookup contact and process existing leads
+        System.out.println("lookupContactAndProcessLeads is about to be called");
         Optional<Contact> optContact = lookupContactAndProcessLeads(leadData);
         if (optContact.isPresent()) return;
 
         // 3: Handle new contact and address processing
+        System.out.println("insertNewContact is about to be called");
         Contact contact = insertNewContact(leadData);
         if (contact == null) return;
 
+        System.out.println("processAddress is about to be called");
         Address address = processAddress(leadData, contact);
 
         // 4: Create and insert a new lead
+        System.out.println("insertNewLead is about to be called");
         insertNewLead(leadData, contact, address);
     }
 
@@ -164,10 +168,10 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
                     return;
                 }
 
-
+                System.out.println("Reached resumption logic");
                 // BUG IS RIGHT HERE!!!!!!
                 if (lead.getAddressId() != null) {
-                    addressRepo.findAddressByLead(lead)
+                    addressRepo.findAddressByLeadDataMatch(leadData) // GETTING DUPLICATE ENTRY WHEN GENERATING NEW LEAD UPON NEW LEAD WITH EXISTING CONTACT
                             .ifPresentOrElse(
                                 address -> processLeadResumption(leadData, address, lead),
                                 () -> processNewAddressExistingContact(leadData, contact, lead)
@@ -260,6 +264,7 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
      * 5. Set Lead to Aged
      */
     private void processLeadResumption(LeadDataTransfer leadData, Address address, Lead lead) {
+        System.out.println("processLeadResumption: Called");
         if (isExistingAddress(address, leadData) && isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
 
@@ -314,8 +319,7 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
      * and then creates a new lead associated with the contact and the inserted address.
      */
     private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact, Lead lead) {
-        // !!!BUG MAY BE HERE!!! 1/27/2025
-        System.out.println("processNewAddressExistingContact has been called.");
+        System.out.println("processNewAddressExistingContact: Called");
         if (leadAddressIsValid(leadData)) {
             Optional<Address> optNewAddress = addressRepo.safeInsert(new Address(leadData));
             optNewAddress.ifPresent(newAddress -> {
