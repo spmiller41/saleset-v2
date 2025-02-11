@@ -168,10 +168,8 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
                     return;
                 }
 
-                System.out.println("Reached resumption logic");
-                // BUG IS RIGHT HERE!!!!!!
                 if (lead.getAddressId() != null) {
-                    addressRepo.findAddressByLeadDataMatch(leadData) // GETTING DUPLICATE ENTRY WHEN GENERATING NEW LEAD UPON NEW LEAD WITH EXISTING CONTACT
+                    addressRepo.findAddressByLeadDataMatch(leadData)
                             .ifPresentOrElse(
                                 address -> processLeadResumption(leadData, address, lead),
                                 () -> processNewAddressExistingContact(leadData, contact, lead)
@@ -264,7 +262,6 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
      * 5. Set Lead to Aged
      */
     private void processLeadResumption(LeadDataTransfer leadData, Address address, Lead lead) {
-        System.out.println("processLeadResumption: Called");
         if (isExistingAddress(address, leadData) && isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
 
@@ -319,7 +316,6 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
      * and then creates a new lead associated with the contact and the inserted address.
      */
     private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact, Lead lead) {
-        System.out.println("processNewAddressExistingContact: Called");
         if (leadAddressIsValid(leadData)) {
             Optional<Address> optNewAddress = addressRepo.safeInsert(new Address(leadData));
             optNewAddress.ifPresent(newAddress -> {
