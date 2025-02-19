@@ -3,9 +3,7 @@ package com.saleset.core.entities;
 import com.saleset.core.dto.LeadDataTransfer;
 import com.saleset.core.enums.LeadStage;
 import jakarta.persistence.*;
-import org.springframework.cglib.core.Local;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -38,8 +36,11 @@ public class Lead {
     @Column(name = "previous_follow_up")
     private LocalDateTime previousFollowUp;
 
-    @Column(name = "stage")
-    private String stage;
+    @Column(name = "original_stage")
+    private String originalStage;
+
+    @Column(name = "current_stage")
+    private String currentStage;
 
     @Column(name = "stage_updated_at")
     private LocalDateTime stageUpdatedAt;
@@ -67,7 +68,8 @@ public class Lead {
         setAddressId(address.getId());
         setUuid(UUID.randomUUID().toString());
         setCreatedAt(LocalDateTime.now());
-        setStage(LeadStage.NEW.toString());
+        setOriginalStage(leadData.getStage());
+        setCurrentStage(leadData.getStage());
         setStageUpdatedAt(LocalDateTime.now());
         setNextFollowUp(LocalDateTime.now().plusMinutes(6));
         setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
@@ -81,7 +83,8 @@ public class Lead {
         setContactId(contact.getId());
         setUuid(UUID.randomUUID().toString());
         setCreatedAt(LocalDateTime.now());
-        setStage(LeadStage.NEW.toString());
+        setOriginalStage(leadData.getStage());
+        setCurrentStage(leadData.getStage());
         setStageUpdatedAt(LocalDateTime.now());
         setNextFollowUp(LocalDateTime.now().plusMinutes(6));
         setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
@@ -143,12 +146,12 @@ public class Lead {
         this.previousFollowUp = previousFollowUp;
     }
 
-    public String getStage() {
-        return stage;
+    public String getCurrentStage() {
+        return currentStage;
     }
 
-    public void setStage(String stage) {
-        this.stage = stage;
+    public void setCurrentStage(String currentStage) {
+        this.currentStage = currentStage;
     }
 
     public LocalDateTime getStageUpdatedAt() {
@@ -191,6 +194,10 @@ public class Lead {
         this.externalId = externalId;
     }
 
+    public String getOriginalStage() { return originalStage; }
+
+    public void setOriginalStage(String originalStage) { this.originalStage = originalStage; }
+
     @Override
     public String toString() {
         return "Lead{" +
@@ -201,7 +208,8 @@ public class Lead {
                 ", createdAt=" + createdAt +
                 ", nextFollowUp=" + nextFollowUp +
                 ", previousFollowUp=" + previousFollowUp +
-                ", stage='" + stage + '\'' +
+                ", originalStage='" + originalStage + '\'' +
+                ", currentStage='" + currentStage + '\'' +
                 ", stageUpdatedAt=" + stageUpdatedAt +
                 ", bookingPageUrl='" + bookingPageUrl + '\'' +
                 ", leadSource='" + leadSource + '\'' +

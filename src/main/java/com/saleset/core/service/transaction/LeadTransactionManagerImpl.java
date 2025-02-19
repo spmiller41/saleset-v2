@@ -163,7 +163,7 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
             }
 
             leadList.forEach(lead -> {
-                if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getStage())) {
+                if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage())) {
                     logger.warn("Contact belongs to Lead on DNC. Kicking Lead.");
                     return;
                 }
@@ -271,7 +271,7 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
             LocalDateTime nextFollowUp = LocalDateTime.of(targetDate, targetTime);
 
             lead.setNextFollowUp(nextFollowUp);
-            lead.setStage(LeadStage.AGED_HIGH_PRIORITY.toString());
+            lead.setCurrentStage(LeadStage.AGED_HIGH_PRIORITY.toString());
 
             Optional<Lead> optUpdatedLead = leadRepo.safeUpdate(lead);
             optUpdatedLead.ifPresent(updatedLead -> logger.info("Lead reentry - Contains Address. Update successful: {}", updatedLead));
@@ -300,7 +300,7 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
             LocalDateTime nextFollowUp = LocalDateTime.of(targetDate, targetTime);
 
             lead.setNextFollowUp(nextFollowUp);
-            lead.setStage(LeadStage.AGED_HIGH_PRIORITY.toString());
+            lead.setCurrentStage(LeadStage.AGED_HIGH_PRIORITY.toString());
 
             Optional<Lead> optUpdatedLead = leadRepo.safeUpdate(lead);
             optUpdatedLead.ifPresent(updatedLead -> logger.info("Lead reentry - No Address Update successful: {}", updatedLead));

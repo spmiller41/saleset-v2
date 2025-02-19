@@ -22,10 +22,10 @@ public interface LeadTransactionManager {
 
     default boolean isValidForUpdate(Lead lead) {
         return !(
-            lead.getStage().equalsIgnoreCase(LeadStage.NEW.toString()) ||
-            lead.getStage().equalsIgnoreCase(LeadStage.AGED_HIGH_PRIORITY.toString()) ||
-            lead.getStage().equalsIgnoreCase(LeadStage.RETARGETED_NO_SHOW.toString()) ||
-            lead.getStage().equalsIgnoreCase(LeadStage.RETARGETED_REHASH.toString())
+            lead.getCurrentStage().equalsIgnoreCase(LeadStage.NEW.toString()) ||
+            lead.getCurrentStage().equalsIgnoreCase(LeadStage.AGED_HIGH_PRIORITY.toString()) ||
+            lead.getCurrentStage().equalsIgnoreCase(LeadStage.RETARGETED_NO_SHOW.toString()) ||
+            lead.getCurrentStage().equalsIgnoreCase(LeadStage.RETARGETED_REHASH.toString())
         );
     }
 
