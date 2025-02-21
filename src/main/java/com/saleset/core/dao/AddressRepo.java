@@ -27,6 +27,22 @@ public class AddressRepo {
 
     // Remove Transactional and use at service layer after testing.
     @Transactional
+    public Optional<Address> findAddressById(int addressId) {
+        try {
+            String query = "SELECT a FROM Address a WHERE a.id = :addressId";
+            Address address = entityManager.createQuery(query, Address.class)
+                    .setParameter("addressId", addressId)
+                    .getSingleResult();
+
+            return Optional.of(address);
+        } catch (NoResultException ex) {
+            logger.error("No Address found with this id: {}", addressId);
+            return Optional.empty();
+        }
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
     public Optional<Address> safeInsert(Address address) {
         try {
             entityManager.persist(address);

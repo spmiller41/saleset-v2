@@ -2,6 +2,7 @@ package com.saleset.core.dao;
 
 import com.saleset.core.dto.LeadDataTransfer;
 import com.saleset.core.entities.Contact;
+import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
@@ -25,6 +26,23 @@ public class ContactRepo {
     @Autowired
     public ContactRepo(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
+    public Optional<Contact> findContactById(int contactId) {
+        try {
+            String query = "SELECT c FROM Contact c WHERE c.id = :contactId";
+            Contact contact = entityManager.createQuery(query, Contact.class)
+                    .setParameter("contactId", contactId)
+                    .getSingleResult();
+
+            return Optional.of(contact);
+        } catch (NoResultException ex) {
+            logger.error("No Contact found with this id: {}", contactId);
+            return Optional.empty();
+        }
     }
 
 

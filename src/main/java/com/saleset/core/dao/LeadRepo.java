@@ -3,6 +3,7 @@ package com.saleset.core.dao;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -37,6 +38,22 @@ public class LeadRepo {
             return Optional.of(lead);
         } catch (PersistenceException ex) {
             logger.error("Insert failed. Lead: {} --- Message: {}", lead, ex.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
+    public Optional<Lead> findLeadById(int leadId) {
+        try {
+            String query = "SELECT l FROM Lead l WHERE l.id = :leadId";
+            Lead lead = entityManager.createQuery(query, Lead.class)
+                    .setParameter("leadId", leadId)
+                    .getSingleResult();
+
+            return Optional.of(lead);
+        } catch (NoResultException ex) {
+            logger.error("No Lead found with this id: {}", leadId);
             return Optional.empty();
         }
     }
