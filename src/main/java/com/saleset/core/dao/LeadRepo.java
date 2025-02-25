@@ -28,6 +28,21 @@ public class LeadRepo {
 
     // Remove Transactional and use at service layer after testing.
     @Transactional
+    public Optional<Lead> findLeadByUUID(String uuid) {
+        try {
+            String query = "SELECT l FROM Lead l WHERE l.uuid = :uuid";
+
+            return Optional.of(entityManager.createQuery(query, Lead.class)
+                    .setParameter("uuid", uuid)
+                    .getSingleResult());
+        } catch (NoResultException ex) {
+            logger.error("No Lead found with UUID: {}", uuid);
+            return Optional.empty();
+        }
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
     public Optional<Lead> safeInsert(Lead lead) {
         try {
             entityManager.persist(lead);

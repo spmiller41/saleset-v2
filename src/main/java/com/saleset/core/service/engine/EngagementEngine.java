@@ -3,6 +3,7 @@ package com.saleset.core.service.engine;
 import com.saleset.core.entities.Event;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.enums.PeriodOfDay;
+import com.saleset.core.util.TimePeriodIdentifier;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -62,11 +63,7 @@ public interface EngagementEngine {
      * @param time The time to evaluate.
      * @return The period of the day corresponding to the given time.
      */
-    default PeriodOfDay determinePeriodOfDay(LocalTime time) {
-        if (time.isBefore(LocalTime.NOON)) return PeriodOfDay.MORNING;
-        else if (time.isBefore(LocalTime.of(18, 0))) return PeriodOfDay.AFTERNOON;
-        else return PeriodOfDay.EVENING;
-    }
+    default PeriodOfDay determinePeriodOfDay(LocalTime time) { return TimePeriodIdentifier.identifyPeriodOfDay(time); }
 
 
     /**

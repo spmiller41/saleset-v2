@@ -1,8 +1,13 @@
 package com.saleset.core.entities;
 
+import com.saleset.core.dto.SGEventDataTransfer;
+import com.saleset.core.enums.EventType;
+import com.saleset.core.util.TimePeriodIdentifier;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "events")
@@ -30,6 +35,21 @@ public class Event {
     private String periodOfDay;
 
     public Event() {}
+
+    public Event(Lead lead, SGEventDataTransfer eventData) {
+
+        if (eventData.getEvent().equalsIgnoreCase(EventType.OPEN.toString())) {
+            setEventType(EventType.OPEN.toString());
+        } else if (eventData.getEvent().equalsIgnoreCase(EventType.CLICK.toString())) {
+            setEventType(EventType.CLICK.toString());
+        }
+
+        setLeadId(lead.getId());
+        setCreatedAt(LocalDateTime.now());
+        setDayOfWeek(LocalDate.now().getDayOfWeek().toString());
+        setPeriodOfDay(TimePeriodIdentifier.identifyPeriodOfDay(LocalTime.now()).toString());
+
+    }
 
     public int getId() {
         return id;
