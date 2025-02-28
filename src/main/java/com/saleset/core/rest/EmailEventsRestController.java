@@ -6,6 +6,7 @@ import com.saleset.core.dto.SGEventDataTransfer;
 import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.service.cache.EventCacheManager;
+import com.saleset.core.service.transaction.EventTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,30 +22,12 @@ import java.util.Optional;
 public class EmailEventsRestController {
 
     @Autowired
-    private LeadRepo leadRepo;
-
-    @Autowired
-    private EventRepo eventRepo;
-
-    @Autowired
-    private EventCacheManager eventCacheManager;
+    private EventTransactionManager eventTransactionManager;
 
     @PostMapping
     public void emailEvent(@RequestBody List<SGEventDataTransfer> eventDataList) {
         eventDataList.forEach(eventData -> {
-            System.out.println(eventData);
-
-            /*
-            Optional<Lead> optLead = leadRepo.findLeadByUUID(eventData.getLeadUUID());
-            optLead.ifPresent(lead -> {
-                Event event = new Event(lead, eventData);
-                Optional<Event> optEvent = eventRepo.safeInsert(event);
-                optEvent.ifPresent(newEvent -> { System.out.println("New Event Created: " + newEvent); });
-            });
-            */
-
-            boolean isInsertable = eventCacheManager.cacheEvent(eventData);
-            System.out.println("Store Event = " + isInsertable);
+            Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
         });
     }
 
