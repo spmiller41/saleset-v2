@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("v2/api/leads")
+@RequestMapping("v2/api")
 public class LeadsRestController {
 
     private final LeadTransactionManagerImpl transactionManager;
@@ -19,7 +19,7 @@ public class LeadsRestController {
         this.transactionManager = transactionManager;
     }
 
-    @PostMapping
+    @PostMapping("/create_lead")
     public void createLead(@RequestBody LeadDataTransfer leadData) {
         System.out.println(leadData);
         transactionManager.manageLead(leadData);
