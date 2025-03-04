@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.SGEventDataTransfer;
+import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.enums.EventType;
 import com.saleset.core.util.TimePeriodIdentifier;
 import jakarta.persistence.*;
@@ -36,7 +36,7 @@ public class Event {
 
     public Event() {}
 
-    public Event(Lead lead, SGEventDataTransfer eventData) {
+    public Event(Lead lead, EventDataTransfer eventData) {
 
         if (eventData.getEvent().equalsIgnoreCase(EventType.OPEN.toString())) {
             setEventType(EventType.OPEN.toString());

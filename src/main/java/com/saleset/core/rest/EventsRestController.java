@@ -1,6 +1,6 @@
 package com.saleset.core.rest;
 
-import com.saleset.core.dto.SGEventDataTransfer;
+import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
 import com.saleset.core.service.transaction.EventTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class EventsRestController {
     private EventTransactionManager eventTransactionManager;
 
     @PostMapping("/email_event")
-    public void emailEvent(@RequestBody List<SGEventDataTransfer> eventDataList) {
+    public void emailEvent(@RequestBody List<EventDataTransfer> eventDataList) {
         eventDataList.forEach(eventData -> {
             Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
         });

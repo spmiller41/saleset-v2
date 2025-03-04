@@ -2,7 +2,7 @@ package com.saleset.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SGEventDataTransfer {
+public class EventDataTransfer {
 
     @JsonProperty("event")
     private String event;
