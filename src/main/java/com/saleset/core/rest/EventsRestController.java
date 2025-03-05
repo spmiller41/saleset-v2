@@ -26,4 +26,10 @@ public class EventsRestController {
         });
     }
 
+    // Anonymous endpoint name for click tracking - to be masked in booking link
+    @PostMapping("/go")
+    public void smsEvent() {
+
+    }
+
 }
