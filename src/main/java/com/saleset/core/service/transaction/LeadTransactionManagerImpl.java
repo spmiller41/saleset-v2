@@ -71,20 +71,16 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
         if (!validateAndNormalizePhones(leadData)) return;
 
         // 2: Lookup contact and process existing leads
-        System.out.println("lookupContactAndProcessLeads is about to be called");
         Optional<Contact> optContact = lookupContactAndProcessLeads(leadData);
         if (optContact.isPresent()) return;
 
         // 3: Handle new contact and address processing
-        System.out.println("insertNewContact is about to be called");
         Contact contact = insertNewContact(leadData);
         if (contact == null) return;
 
-        System.out.println("processAddress is about to be called");
         Address address = processAddress(leadData, contact);
 
         // 4: Create and insert a new lead
-        System.out.println("insertNewLead is about to be called");
         insertNewLead(leadData, contact, address);
     }
 
