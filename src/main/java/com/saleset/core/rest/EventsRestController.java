@@ -3,12 +3,11 @@ package com.saleset.core.rest;
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
 import com.saleset.core.service.transaction.EventTransactionManager;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,9 +26,12 @@ public class EventsRestController {
     }
 
     // Anonymous endpoint name for click tracking - to be masked in booking link
-    @PostMapping("/go")
-    public void smsEvent() {
-
+    @GetMapping("/go")
+    public void smsEvent(@RequestParam("UUID") String leadUUID) {
+        EventDataTransfer eventData = new EventDataTransfer();
+        eventData.setEvent("click");
+        eventData.setLeadUUID(leadUUID);
+        System.out.println(eventData);
     }
 
 }
