@@ -28,7 +28,7 @@ public class EventDataTransfer {
 
     @Override
     public String toString() {
-        return "SGEventDataTransfer{" +
+        return "EventDataTransfer{" +
                 "event='" + event + '\'' +
                 ", leadUUID='" + leadUUID + '\'' +
                 '}';
