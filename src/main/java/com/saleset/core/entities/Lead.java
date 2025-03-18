@@ -48,6 +48,9 @@ public class Lead {
     @Column(name = "booking_page_url")
     private String bookingPageUrl;
 
+    @Column(name = "tracking_webhook_url")
+    private String trackingWebhookUrl;
+
     @Column(name = "lead_source")
     private String leadSource;
 
@@ -198,6 +201,10 @@ public class Lead {
 
     public void setOriginalStage(String originalStage) { this.originalStage = originalStage; }
 
+    public String getTrackingWebhookUrl() { return trackingWebhookUrl; }
+
+    public void setTrackingWebhookUrl(String trackingWebhookUrl) { this.trackingWebhookUrl = trackingWebhookUrl; }
+
     @Override
     public String toString() {
         return "Lead{" +
@@ -212,6 +219,7 @@ public class Lead {
                 ", currentStage='" + currentStage + '\'' +
                 ", stageUpdatedAt=" + stageUpdatedAt +
                 ", bookingPageUrl='" + bookingPageUrl + '\'' +
+                ", trackingWebhookUrl='" + trackingWebhookUrl + '\'' +
                 ", leadSource='" + leadSource + '\'' +
                 ", subSource='" + subSource + '\'' +
                 ", externalId='" + externalId + '\'' +
