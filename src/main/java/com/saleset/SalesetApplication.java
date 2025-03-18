@@ -4,7 +4,9 @@ import com.saleset.core.dao.ContactRepo;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
+import com.saleset.core.service.sms.TwilioManager;
 import com.saleset.core.util.QueryUrlGenerator;
+import com.twilio.rest.api.v2010.account.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,20 +32,26 @@ public class SalesetApplication {
 	@Autowired
 	private QueryUrlGenerator queryUrlGenerator;
 
+	@Autowired
+	private TwilioManager twilioManager;
+
 	@Bean
 	public CommandLineRunner demo() {
 		return (args) -> {
-			Optional<Lead> optLead = leadRepo.findLeadByUUID("43d01a1f-f5b1-47c1-8cc8-52eb75859610");
+			Optional<Lead> optLead = leadRepo.findLeadByUUID("1bb2b4b8-3294-4175-ad91-567240d449ff");
 			optLead.ifPresent(lead -> {
 				Optional<Contact> optContact = contactRepo.findContactById(lead.getContactId());
 				optContact.ifPresent(contact -> {
-					String url = queryUrlGenerator.buildTracking(lead, contact);
-					System.out.println(url);
+					// Lips Number: +15166892144
+					Message message = twilioManager.sendSMS(
+							"+15166892144",
+							contact.getPrimaryPhone(),
+							"Testing: " + lead.getTrackingWebhookUrl());
+					System.out.println(message.getBody());
 				});
 			});
 		};
 	}
 	*/
-
 
 }
