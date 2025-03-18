@@ -14,6 +14,7 @@ import com.saleset.core.enums.PhoneLineType;
 import com.saleset.core.service.engine.EngagementEngineImpl;
 import com.saleset.core.service.sms.TwilioManager;
 import com.saleset.core.util.PhoneNumberNormalizer;
+import com.saleset.core.util.QueryUrlGenerator;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +38,22 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
     private final LeadRepo leadRepo;
     private final EventRepo eventRepo;
     private final TwilioManager twilioManager;
+    private final QueryUrlGenerator queryUrlGenerator;
 
     @Autowired
-    public LeadTransactionManagerImpl(EngagementEngineImpl engagementEngine, ContactRepo contactRepo,
-                                      AddressRepo addressRepo, LeadRepo leadRepo, EventRepo eventRepo, TwilioManager twilioManager) {
+    public LeadTransactionManagerImpl(EngagementEngineImpl engagementEngine,
+                                      ContactRepo contactRepo,
+                                      AddressRepo addressRepo,
+                                      LeadRepo leadRepo,
+                                      EventRepo eventRepo,
+                                      TwilioManager twilioManager, QueryUrlGenerator queryUrlGenerator) {
         this.engagementEngine = engagementEngine;
         this.contactRepo = contactRepo;
         this.addressRepo = addressRepo;
         this.leadRepo = leadRepo;
         this.eventRepo = eventRepo;
         this.twilioManager = twilioManager;
+        this.queryUrlGenerator = queryUrlGenerator;
     }
 
 
@@ -240,6 +247,17 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
         Lead lead = (address != null)
                 ? new Lead(leadData, contact, address)
                 : new Lead(leadData, contact);
+
+        String bookingUrl = queryUrlGenerator.buildBooking(
+                lead.getUuid(),
+                contact.getFirstName(),
+                contact.getLastName(),
+                contact.getEmail(),
+                contact.getPrimaryPhoneType());
+        lead.setBookingPageUrl(bookingUrl);
+
+        String trackingUrl = queryUrlGenerator.buildTracking(lead, contact);
+        lead.setTrackingWebhookUrl(trackingUrl);
 
         Optional<Lead> optLead = leadRepo.safeInsert(lead);
         optLead.ifPresent(newLead -> logger.info("Lead inserted successfully: {}", newLead));
