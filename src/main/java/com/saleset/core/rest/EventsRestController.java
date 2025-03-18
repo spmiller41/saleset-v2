@@ -49,6 +49,8 @@ public class EventsRestController {
         String bookingUrl = queryUrlGenerator.buildBooking(leadUUID, firstName, lastName, email, phone);
         System.out.println(bookingUrl);
 
+        Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
+
         // Return HTTP 302 redirect to the booking URL
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, bookingUrl)
