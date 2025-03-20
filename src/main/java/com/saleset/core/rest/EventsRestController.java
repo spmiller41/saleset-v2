@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequestMapping("v2/api")
 public class EventsRestController {
 
+
     @Autowired
     private EventTransactionManager eventTransactionManager;
 
@@ -56,5 +57,6 @@ public class EventsRestController {
                 .header(HttpHeaders.LOCATION, bookingUrl)
                 .build();
     }
+
 
 }
