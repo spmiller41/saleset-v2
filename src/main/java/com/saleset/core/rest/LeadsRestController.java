@@ -1,7 +1,7 @@
 package com.saleset.core.rest;
 
 import com.saleset.core.dto.LeadDataTransfer;
-import com.saleset.core.service.transaction.LeadTransactionManagerImpl;
+import com.saleset.core.service.transaction.LeadEntryPipelineManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("v2/api")
 public class LeadsRestController {
 
-    private final LeadTransactionManagerImpl transactionManager;
+    private final LeadEntryPipelineManager transactionManager;
 
     @Autowired
-    public LeadsRestController(LeadTransactionManagerImpl transactionManager) {
+    public LeadsRestController(LeadEntryPipelineManager transactionManager) {
         this.transactionManager = transactionManager;
     }
 

@@ -27,10 +27,23 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Handles the full transactional workflow for new or re-entering leads entering the system.
+ * <p>
+ * This service manages lead intake by:
+ * <ul>
+ *   <li>Validating and normalizing phone numbers using Twilio Lookup</li>
+ *   <li>Checking for existing contacts and handling DNC or lead resumption</li>
+ *   <li>Inserting new contacts, addresses, and leads when appropriate</li>
+ *   <li>Determining follow-up schedules using the Engagement Engine</li>
+ * </ul>
+ * <p>
+ * Designed to be the entry point for processing lead data upon initial submission.
+ */
 @Service
-public class LeadTransactionManagerImpl implements LeadTransactionManager {
+public class LeadEntryPipelineManager implements LeadTransactionManager {
 
-    private final Logger logger = LoggerFactory.getLogger(LeadTransactionManagerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(LeadEntryPipelineManager.class);
 
     private final EngagementEngineImpl engagementEngine;
     private final ContactRepo contactRepo;
@@ -41,12 +54,12 @@ public class LeadTransactionManagerImpl implements LeadTransactionManager {
     private final QueryUrlGenerator queryUrlGenerator;
 
     @Autowired
-    public LeadTransactionManagerImpl(EngagementEngineImpl engagementEngine,
-                                      ContactRepo contactRepo,
-                                      AddressRepo addressRepo,
-                                      LeadRepo leadRepo,
-                                      EventRepo eventRepo,
-                                      TwilioManager twilioManager, QueryUrlGenerator queryUrlGenerator) {
+    public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
+                                    ContactRepo contactRepo,
+                                    AddressRepo addressRepo,
+                                    LeadRepo leadRepo,
+                                    EventRepo eventRepo,
+                                    TwilioManager twilioManager, QueryUrlGenerator queryUrlGenerator) {
         this.engagementEngine = engagementEngine;
         this.contactRepo = contactRepo;
         this.addressRepo = addressRepo;
