@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,6 +97,19 @@ public class LeadRepo {
             logger.error("Update failed. Lead: {} --- Message: {}", lead, ex.getMessage());
             return Optional.empty();
         }
+    }
+
+    // Remove Transactional and use at service layer after testing.
+    @Transactional
+    public List<Lead> findLeadsReadyForFollowUp(LocalDateTime now, LocalDateTime endTime, List<String> excludedStages) {
+        String query = "SELECT l FROM Lead l WHERE l.nextFollowUp BETWEEN :now AND :endTime " +
+                "AND l.currentStage NOT IN :excludedStages";
+
+        return entityManager.createQuery(query, Lead.class)
+                .setParameter("now", now)
+                .setParameter("endTime", endTime)
+                .setParameter("excludedStages", excludedStages)
+                .getResultList();
     }
 
 }
