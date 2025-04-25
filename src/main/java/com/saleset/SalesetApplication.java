@@ -2,8 +2,13 @@ package com.saleset;
 
 import com.saleset.core.dao.ContactRepo;
 import com.saleset.core.dao.LeadRepo;
+import com.saleset.core.dao.MarketZipDataRepo;
+import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
+import com.saleset.core.entities.MarketZipData;
+import com.saleset.core.service.outreach.Dispatcher;
 import com.saleset.core.service.sms.TwilioManager;
 import com.saleset.core.util.QueryUrlGenerator;
 import com.twilio.rest.api.v2010.account.Message;
@@ -27,32 +32,15 @@ public class SalesetApplication {
 	private LeadRepo leadRepo;
 
 	@Autowired
-	private ContactRepo contactRepo;
-
-	@Autowired
-	private QueryUrlGenerator queryUrlGenerator;
-
-	@Autowired
-	private TwilioManager twilioManager;
+	private Dispatcher dispatcher;
 
 	@Bean
 	public CommandLineRunner demo() {
 		return (args) -> {
-			Optional<Lead> optLead = leadRepo.findLeadByUUID("726e5255-594d-42e0-a426-48633129a2ea");
-			optLead.ifPresent(lead -> {
-				Optional<Contact> optContact = contactRepo.findContactById(lead.getContactId());
-				optContact.ifPresent(contact -> {
-					// Lips Number: +15166892144
-					Message message = twilioManager.sendSMS(
-							"+15166892144",
-							contact.getPrimaryPhone(),
-							"Testing: " + lead.getTrackingWebhookUrl());
-					System.out.println(message.getBody());
-				});
-			});
+			Optional<Lead> optLead = leadRepo.findLeadById(1);
+			optLead.ifPresent(lead -> dispatcher.executeFollowUp(lead));
 		};
 	}
 	*/
-
 
 }
