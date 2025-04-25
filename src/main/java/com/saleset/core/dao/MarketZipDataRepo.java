@@ -20,7 +20,7 @@ public class MarketZipDataRepo {
     }
 
     public Optional<MarketZipData> findByAddress(Address address) {
-        String query = "SELECT mzd FROM MarketZipData mzd WHERE mzd.zip = :zipCode";
+        String query = "SELECT mzd FROM MarketZipData mzd WHERE mzd.zipCode = :zipCode";
 
         try {
             MarketZipData data = entityManager.createQuery(query, MarketZipData.class)

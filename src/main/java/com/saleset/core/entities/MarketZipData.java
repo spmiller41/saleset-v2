@@ -2,12 +2,14 @@ package com.saleset.core.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "in_market_zips")
 public class MarketZipData {
 
+    @Id
     @Column(name = "zip")
     private String zipCode;
 
