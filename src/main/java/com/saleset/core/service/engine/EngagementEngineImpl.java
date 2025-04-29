@@ -93,18 +93,40 @@ public class EngagementEngineImpl implements EngagementEngine {
 
 
     /**
-     * Determines the next stage of the lead based on the time elapsed since its creation.
-     * If the lead is older than a specified maximum number of days in the current stage,
-     * it transitions to the next stage.
+     * Determines the next stage of the lead based on the time elapsed since the last stage update.
+     * <p>
+     * Logic:
+     * <ul>
+     *   <li>If the lead is currently marked as Aged Low Priority, it remains there indefinitely.</li>
+     *   <li>If the lead has exceeded the maximum allowed days in its current stage, it transitions to Aged Low Priority.</li>
+     *   <li>If the lead is currently marked as Aged High Priority and not expired, it remains Aged High Priority.</li>
+     *   <li>Otherwise, the lead remains in its original stage.</li>
+     * </ul>
      *
-     * @param fromDate the date and time the lead was created
-     * @param maxDaysInStage the maximum number of days a lead can stay in the current stage
-     * @return the LeadStage indicating the current or next stage of the lead
+     * @param stageUpdatedAt the date and time the lead's stage was last updated
+     * @param maxDaysInStage the maximum number of days allowed in the current stage before aging
+     * @param currentStage the current stage of the lead
+     * @param originalStage the original classification of the lead
+     * @return the LeadStage indicating the appropriate next stage of the lead
      */
+
     @Override
-    public LeadStage determineNextStage(LocalDateTime fromDate, int maxDaysInStage) {
-        long daysSinceCreation = ChronoUnit.DAYS.between(fromDate.toLocalDate(), LocalDate.now());
-        return daysSinceCreation >= maxDaysInStage ? LeadStage.AGED_LOW_PRIORITY : LeadStage.NEW;
+    public LeadStage determineNextStage(LocalDateTime stageUpdatedAt, int maxDaysInStage,
+                                        LeadStage currentStage, LeadStage originalStage) {
+
+        if (currentStage == LeadStage.AGED_LOW_PRIORITY) {
+            return LeadStage.AGED_LOW_PRIORITY;
+        }
+
+        long daysInCurrentStage = ChronoUnit.DAYS.between(stageUpdatedAt.toLocalDate(), LocalDate.now());
+
+        if (daysInCurrentStage >= maxDaysInStage) {
+            return LeadStage.AGED_LOW_PRIORITY;
+        }
+
+        return currentStage == LeadStage.AGED_HIGH_PRIORITY
+                ? LeadStage.AGED_HIGH_PRIORITY
+                : originalStage;
     }
 
 
