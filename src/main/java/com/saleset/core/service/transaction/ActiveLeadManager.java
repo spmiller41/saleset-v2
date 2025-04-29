@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ActiveLeadManager {
@@ -30,5 +31,10 @@ public class ActiveLeadManager {
         return leadRepo.findLeadsReadyForFollowUp(now, endTime, excludedStages);
     }
 
+    @Transactional
+    public String getBookingPageUrl(String leadUUID) {
+        Optional<Lead> optLead = leadRepo.findLeadByUUID(leadUUID);
+        return optLead.map(Lead::getBookingPageUrl).orElse(null);
+    }
 
 }
