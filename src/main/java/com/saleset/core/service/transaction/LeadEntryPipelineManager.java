@@ -260,17 +260,8 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
         Lead lead = (address != null)
                 ? new Lead(leadData, contact, address)
                 : new Lead(leadData, contact);
-
-        String bookingUrl = queryUrlGenerator.buildBooking(
-                lead.getUuid(),
-                contact.getFirstName(),
-                contact.getLastName(),
-                contact.getEmail(),
-                contact.getPrimaryPhoneType());
-        lead.setBookingPageUrl(bookingUrl);
-
-        String trackingUrl = queryUrlGenerator.buildTracking(lead, contact);
-        lead.setTrackingWebhookUrl(trackingUrl);
+        lead.setBookingPageUrl(queryUrlGenerator.buildBooking(lead, contact, address));
+        lead.setTrackingWebhookUrl(queryUrlGenerator.buildTracking(lead));
 
         Optional<Lead> optLead = leadRepo.safeInsert(lead);
         optLead.ifPresent(newLead -> logger.info("Lead inserted successfully: {}", newLead));
