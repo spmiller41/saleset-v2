@@ -27,6 +27,9 @@ public class Lead {
     @Column(name = "uuid")
     private String uuid;
 
+    @Column(name = "follow_up_count")
+    private int followUpCount;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -70,13 +73,13 @@ public class Lead {
         setContactId(contact.getId());
         setAddressId(address.getId());
         setUuid(UUID.randomUUID().toString());
+        setFollowUpCount(0);
         setCreatedAt(LocalDateTime.now());
         setOriginalStage(leadData.getStage());
         setCurrentStage(leadData.getStage());
         setStageUpdatedAt(LocalDateTime.now());
         setNextFollowUp(LocalDateTime.now().plusMinutes(6));
         setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
-        setBookingPageUrl("testing.booking.com");
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
         setExternalId(leadData.getExternalId());
@@ -85,13 +88,13 @@ public class Lead {
     public Lead(LeadDataTransfer leadData, Contact contact) {
         setContactId(contact.getId());
         setUuid(UUID.randomUUID().toString());
+        setFollowUpCount(0);
         setCreatedAt(LocalDateTime.now());
         setOriginalStage(leadData.getStage());
         setCurrentStage(leadData.getStage());
         setStageUpdatedAt(LocalDateTime.now());
         setNextFollowUp(LocalDateTime.now().plusMinutes(6));
         setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
-        setBookingPageUrl("testing.booking.com");
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
         setExternalId(leadData.getExternalId());
@@ -124,6 +127,10 @@ public class Lead {
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
+
+    public int getFollowUpCount() { return followUpCount; }
+
+    public void setFollowUpCount(int followUpCount) { this.followUpCount = followUpCount; }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
