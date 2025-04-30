@@ -1,7 +1,7 @@
 package com.saleset.core.rest;
 
 import com.saleset.core.dto.LeadDataTransfer;
-import com.saleset.core.service.transaction.LeadEntryPipelineManager;
+import com.saleset.core.service.transaction.leads.LeadEntryPipelineManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

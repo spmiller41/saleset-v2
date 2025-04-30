@@ -1,4 +1,4 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.transaction.leads;
 
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.entities.Lead;

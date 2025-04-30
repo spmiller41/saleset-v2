@@ -1,4 +1,4 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.transaction.leads;
 
 import com.saleset.core.dto.LeadDataTransfer;
 import com.saleset.core.entities.Address;

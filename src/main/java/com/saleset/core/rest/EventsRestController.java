@@ -2,17 +2,15 @@ package com.saleset.core.rest;
 
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
-import com.saleset.core.service.transaction.ActiveLeadManager;
+import com.saleset.core.service.transaction.leads.ActiveLeadManager;
 import com.saleset.core.service.transaction.EventTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 

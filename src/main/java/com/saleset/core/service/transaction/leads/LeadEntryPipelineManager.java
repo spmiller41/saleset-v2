@@ -1,4 +1,4 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.transaction.leads;
 
 import com.saleset.core.dao.AddressRepo;
 import com.saleset.core.dao.ContactRepo;
