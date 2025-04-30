@@ -20,6 +20,9 @@ public class PhoneValidationService {
     @Autowired
     public PhoneValidationService(TwilioManager twilioManager) { this.twilioManager = twilioManager; }
 
+
+
+
     /**
      * Validates and normalizes phone numbers for the given lead data.
      * If no valid phone numbers are found, the method returns false.
@@ -36,36 +39,55 @@ public class PhoneValidationService {
             return false;
         }
 
-        // Swap secondary to primary if primary is missing
-        if (leadData.getPrimaryPhone() == null && leadData.getSecondaryPhone() != null) {
-            leadData.setPrimaryPhone(leadData.getSecondaryPhone());
-            leadData.setSecondaryPhone(null);
-        }
+        swapSecondaryToPrimaryIfNeeded(leadData);
+        normalizeAndSetPhoneTypes(leadData);
 
-        // Normalize phone numbers
-        Optional<String> optPrimary = PhoneNumberNormalizer.normalizeToE164(leadData.getPrimaryPhone());
-        Optional<String> optSecondary = PhoneNumberNormalizer.normalizeToE164(leadData.getSecondaryPhone());
-
-        if (optPrimary.isEmpty() && optSecondary.isEmpty()) return false;
-
-        // Use Twilio lookup to validate numbers.
-        optPrimary.ifPresent(primaryPhone -> {
-            leadData.setPrimaryPhoneType(twilioManager.lookupPhoneNumber(primaryPhone).getType());
-            if (leadData.getPrimaryPhoneType() != PhoneLineType.INVALID) leadData.setPrimaryPhone(primaryPhone);
-        });
-
-        optSecondary.ifPresent(secondaryPhone -> {
-            leadData.setSecondaryPhoneType(twilioManager.lookupPhoneNumber(secondaryPhone).getType());
-            if (leadData.getSecondaryPhoneType() != PhoneLineType.INVALID) leadData.setSecondaryPhone(secondaryPhone);
-        });
-
-        if (leadData.getPrimaryPhoneType() == PhoneLineType.INVALID &&
-                (leadData.getSecondaryPhoneType() == PhoneLineType.INVALID || leadData.getSecondaryPhoneType() == null)) {
+        if (!hasValidPhoneType(leadData)) {
             logger.warn("Lead kicked due to no validated number {}", leadData);
             return false;
         }
 
         return true;
+    }
+
+
+
+
+    private void swapSecondaryToPrimaryIfNeeded(LeadDataTransfer leadData) {
+        if (leadData.getPrimaryPhone() == null && leadData.getSecondaryPhone() != null) {
+            leadData.setPrimaryPhone(leadData.getSecondaryPhone());
+            leadData.setSecondaryPhone(null);
+        }
+    }
+
+
+
+
+    private void normalizeAndSetPhoneTypes(LeadDataTransfer leadData) {
+        Optional<String> optPrimary = PhoneNumberNormalizer.normalizeToE164(leadData.getPrimaryPhone());
+        Optional<String> optSecondary = PhoneNumberNormalizer.normalizeToE164(leadData.getSecondaryPhone());
+
+        optPrimary.ifPresent(primaryPhone -> {
+            leadData.setPrimaryPhoneType(twilioManager.lookupPhoneNumber(primaryPhone).getType());
+            if (leadData.getPrimaryPhoneType() != PhoneLineType.INVALID) {
+                leadData.setPrimaryPhone(primaryPhone);
+            }
+        });
+
+        optSecondary.ifPresent(secondaryPhone -> {
+            leadData.setSecondaryPhoneType(twilioManager.lookupPhoneNumber(secondaryPhone).getType());
+            if (leadData.getSecondaryPhoneType() != PhoneLineType.INVALID) {
+                leadData.setSecondaryPhone(secondaryPhone);
+            }
+        });
+    }
+
+
+
+
+    private boolean hasValidPhoneType(LeadDataTransfer leadData) {
+        return leadData.getPrimaryPhoneType() != PhoneLineType.INVALID ||
+                (leadData.getSecondaryPhoneType() != PhoneLineType.INVALID && leadData.getSecondaryPhoneType() != null);
     }
 
 }
