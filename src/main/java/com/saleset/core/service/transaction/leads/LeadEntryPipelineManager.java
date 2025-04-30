@@ -1,6 +1,5 @@
 package com.saleset.core.service.transaction.leads;
 
-import com.saleset.core.dao.AddressRepo;
 import com.saleset.core.dao.EventRepo;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.LeadDataTransfer;
@@ -11,6 +10,7 @@ import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.engine.EngagementEngineImpl;
 import com.saleset.core.service.sms.PhoneValidationService;
+import com.saleset.core.service.transaction.AddressTransactionManager;
 import com.saleset.core.service.transaction.ContactTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
 import jakarta.transaction.Transactional;
@@ -39,13 +39,13 @@ import java.util.Optional;
  * Designed to be the entry point for processing lead data upon initial submission.
  */
 @Service
-public class LeadEntryPipelineManager implements LeadTransactionManager {
+public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
     private final Logger logger = LoggerFactory.getLogger(LeadEntryPipelineManager.class);
 
     private final EngagementEngineImpl engagementEngine;
     private final ContactTransactionManager contactTransactionManager;
-    private final AddressRepo addressRepo;
+    private final AddressTransactionManager addressTransactionManager;
     private final LeadRepo leadRepo;
     private final EventRepo eventRepo;
     private final PhoneValidationService phoneValidationService;
@@ -54,14 +54,14 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
     @Autowired
     public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
                                     ContactTransactionManager contactTransactionManager,
-                                    AddressRepo addressRepo,
+                                    AddressTransactionManager addressTransactionManager,
                                     LeadRepo leadRepo,
                                     EventRepo eventRepo,
                                     PhoneValidationService phoneValidationService,
                                     QueryUrlGenerator queryUrlGenerator) {
         this.engagementEngine = engagementEngine;
         this.contactTransactionManager = contactTransactionManager;
-        this.addressRepo = addressRepo;
+        this.addressTransactionManager = addressTransactionManager;
         this.leadRepo = leadRepo;
         this.eventRepo = eventRepo;
         this.phoneValidationService = phoneValidationService;
@@ -83,7 +83,6 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
      * <p>
      * @param leadData The data transfer object containing lead details such as phone, address, and contact information.
      */
-    @Override
     @Transactional
     public void manageLead(LeadDataTransfer leadData) {
         // 1: Validate and normalize phone numbers
@@ -97,7 +96,7 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
         Contact contact = contactTransactionManager.insertContact(leadData);
         if (contact == null) return;
 
-        Address address = processAddress(leadData, contact);
+        Address address = addressTransactionManager.resolveOrInsert(leadData);
 
         // 4: Create and insert a new lead
         insertNewLead(leadData, contact, address);
@@ -132,42 +131,18 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
                 }
 
                 if (lead.getAddressId() != null) {
-                    addressRepo.findAddressByLeadDataMatch(leadData)
+                    addressTransactionManager.findAddressMatch(leadData)
                             .ifPresentOrElse(
-                                address -> processLeadResumption(leadData, address, lead),
-                                () -> processNewAddressExistingContact(leadData, contact, lead)
+                                    address -> processLeadResumption(leadData, address, lead),
+                                    () -> processNewAddressExistingContact(leadData, contact, lead)
                             );
                 } else {
-                    processLeadResumption(leadData, lead);
+                    processLeadResumption(lead);
                 }
             });
         });
 
         return optContact;
-    }
-
-
-
-
-    /*
-     * Processes the address for the given lead data and contact.
-     * If the address is valid and does not exist, it inserts a new address.
-     *
-     * @param leadData The lead data containing address details.
-     * @param contact  The contact associated with the address.
-     * @return The processed Address object, or null if no valid address is found or inserted.
-     */
-    private Address processAddress(LeadDataTransfer leadData, Contact contact) {
-        if (!leadAddressIsValid(leadData)) return null;
-
-        return addressRepo.findAddressByLeadDataMatch(leadData)
-                .orElseGet(() -> {
-                    Optional<Address> optNewAddress = addressRepo.safeInsert(new Address(leadData));
-                    optNewAddress.ifPresent(newAddress ->
-                            logger.info("Address inserted successfully: {}", newAddress)
-                    );
-                    return optNewAddress.orElse(null);
-                });
     }
 
 
@@ -233,7 +208,7 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
      * 4. Generate the next follow-up date and time.
      * 5. Update the Lead stage to "Aged High Priority."
      */
-    private void processLeadResumption(LeadDataTransfer leadData, Lead lead) {
+    private void processLeadResumption(Lead lead) {
         if (isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
 
@@ -259,17 +234,13 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
      * and then creates a new lead associated with the contact and the inserted address.
      */
     private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact, Lead lead) {
-        if (leadAddressIsValid(leadData)) {
-            Optional<Address> optNewAddress = addressRepo.safeInsert(new Address(leadData));
-            optNewAddress.ifPresent(newAddress -> {
-                logger.info("Address Insert Successful. Address: {}", newAddress);
-                Optional<Lead> optNewLead = leadRepo.safeInsert(new Lead(leadData, contact, newAddress));
-                optNewLead.ifPresent(newLead -> logger.info("Lead Insert Successful. Lead: {}", lead));
-            });
-        }
+        addressTransactionManager.insertNewAddress(leadData)
+                .ifPresent(newAddress -> {
+                    logger.info("Address Insert Successful. Address: {}", newAddress);
+                    leadRepo.safeInsert(new Lead(leadData, contact, newAddress))
+                            .ifPresent(newLead -> logger.info("Lead Insert Successful. Lead: {}", lead));
+                });
     }
-
-
 
 
 }

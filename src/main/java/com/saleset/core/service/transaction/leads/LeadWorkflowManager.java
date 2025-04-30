@@ -5,9 +5,7 @@ import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 
-public interface LeadTransactionManager {
-
-    void manageLead(LeadDataTransfer leadData);
+public interface LeadWorkflowManager {
 
     default boolean isExistingAddress(Address address, LeadDataTransfer leadData) {
         boolean addressMatch = address.getStreet().equalsIgnoreCase(leadData.getStreet())
