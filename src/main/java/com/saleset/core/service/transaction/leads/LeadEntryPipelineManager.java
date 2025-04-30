@@ -1,7 +1,6 @@
 package com.saleset.core.service.transaction.leads;
 
 import com.saleset.core.dao.AddressRepo;
-import com.saleset.core.dao.ContactRepo;
 import com.saleset.core.dao.EventRepo;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.LeadDataTransfer;
@@ -12,6 +11,7 @@ import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.engine.EngagementEngineImpl;
 import com.saleset.core.service.sms.PhoneValidationService;
+import com.saleset.core.service.transaction.ContactTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
     private final Logger logger = LoggerFactory.getLogger(LeadEntryPipelineManager.class);
 
     private final EngagementEngineImpl engagementEngine;
-    private final ContactRepo contactRepo;
+    private final ContactTransactionManager contactTransactionManager;
     private final AddressRepo addressRepo;
     private final LeadRepo leadRepo;
     private final EventRepo eventRepo;
@@ -53,13 +53,14 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
 
     @Autowired
     public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
-                                    ContactRepo contactRepo,
+                                    ContactTransactionManager contactTransactionManager,
                                     AddressRepo addressRepo,
                                     LeadRepo leadRepo,
-                                    EventRepo eventRepo, PhoneValidationService phoneValidationService,
+                                    EventRepo eventRepo,
+                                    PhoneValidationService phoneValidationService,
                                     QueryUrlGenerator queryUrlGenerator) {
         this.engagementEngine = engagementEngine;
-        this.contactRepo = contactRepo;
+        this.contactTransactionManager = contactTransactionManager;
         this.addressRepo = addressRepo;
         this.leadRepo = leadRepo;
         this.eventRepo = eventRepo;
@@ -93,7 +94,7 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
         if (optContact.isPresent()) return;
 
         // 3: Handle new contact and address processing
-        Contact contact = insertNewContact(leadData);
+        Contact contact = contactTransactionManager.insertContact(leadData);
         if (contact == null) return;
 
         Address address = processAddress(leadData, contact);
@@ -114,7 +115,7 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
      * @return An Optional containing the found contact, or empty if no contact is found.
      */
     private Optional<Contact> lookupContactAndProcessLeads(LeadDataTransfer leadData) {
-        Optional<Contact> optContact = contactRepo.findContactByPhone(leadData);
+        Optional<Contact> optContact = contactTransactionManager.findByPhone(leadData);
 
         optContact.ifPresent(contact -> {
             List<Lead> leadList = leadRepo.findLeadByContact(contact);
@@ -143,28 +144,6 @@ public class LeadEntryPipelineManager implements LeadTransactionManager {
         });
 
         return optContact;
-    }
-
-
-
-
-    /*
-     * Inserts a new contact based on the provided lead data.
-     * If insertion fails, returns null.
-     *
-     * @param leadData The lead data containing contact details.
-     * @return The newly inserted Contact object, or null if insertion fails.
-     */
-    private Contact insertNewContact(LeadDataTransfer leadData) {
-        Optional<Contact> optNewContact = contactRepo.safeInsert(new Contact(leadData));
-        if (optNewContact.isEmpty()) {
-            logger.warn("Failed to insert contact for lead data: {}", leadData);
-            return null;
-        }
-
-        Contact contact = optNewContact.get();
-        logger.info("Contact inserted successfully: {}", contact);
-        return contact;
     }
 
 
