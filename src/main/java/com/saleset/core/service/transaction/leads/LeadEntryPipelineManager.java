@@ -124,22 +124,35 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
                 return;
             }
 
-            leadList.forEach(lead -> {
+            Optional<Address> optAddress = addressTransactionManager.findAddressMatch(leadData);
+            boolean payloadHasAddress = leadAddressIsValid(leadData);
+            boolean nullAddressLeadExists = leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
+
+            for (Lead lead : leadList) {
                 if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage())) {
                     logger.warn("Contact belongs to Lead on DNC. Kicking Lead.");
                     return;
                 }
 
-                if (lead.getAddressId() != null) {
-                    addressTransactionManager.findAddressMatch(leadData)
-                            .ifPresentOrElse(
-                                    address -> processLeadResumption(leadData, address, lead),
-                                    () -> processNewAddressExistingContact(leadData, contact, lead)
-                            );
-                } else {
-                    processLeadResumption(lead);
+                if (optAddress.isPresent() && lead.getAddressId() != null &&
+                        lead.getAddressId().equals(optAddress.get().getId())) {
+                    processLeadResumption(leadData, optAddress.get(), lead);
+                    return;
                 }
-            });
+            }
+
+            if (!payloadHasAddress && nullAddressLeadExists) {
+                logger.info("Duplicate null-address lead detected. Skipping insert.");
+                return;
+            }
+
+            if (optAddress.isPresent()) {
+                insertNewLead(leadData, contact, optAddress.get());
+            } else if (payloadHasAddress) {
+                processNewAddressExistingContact(leadData, contact);
+            } else {
+                insertNewLead(leadData, contact, null);
+            }
         });
 
         return optContact;
@@ -147,7 +160,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
-
+    
     /*
      * Creates and inserts a new lead with the given lead data, contact, and address.
      * If the address is null, the lead is created without an associated address.
@@ -177,7 +190,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * 2. Set the next follow-up target date to the following day.
      * 3. Use engagement engine to determine the most ideal follow-up time.
      * 4. Generate the next follow-up date/time.
-     * 5. Set Lead to Aged
+     * 5. Set Lead to AGED_HIGH_PRIORITY
      */
     private void processLeadResumption(LeadDataTransfer leadData, Address address, Lead lead) {
         if (isExistingAddress(address, leadData) && isValidForUpdate(lead)) {
@@ -233,14 +246,14 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * It validates the address from lead data, attempts to insert the address into the database,
      * and then creates a new lead associated with the contact and the inserted address.
      */
-    private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact, Lead lead) {
+    private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact) {
         addressTransactionManager.insertNewAddress(leadData)
                 .ifPresent(newAddress -> {
                     logger.info("Address Insert Successful. Address: {}", newAddress);
-                    leadRepo.safeInsert(new Lead(leadData, contact, newAddress))
-                            .ifPresent(newLead -> logger.info("Lead Insert Successful. Lead: {}", lead));
+                    insertNewLead(leadData, contact, newAddress);
                 });
     }
+
 
 
 }
