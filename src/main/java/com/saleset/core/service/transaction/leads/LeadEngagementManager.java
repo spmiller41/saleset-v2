@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ActiveLeadManager {
+public class LeadEngagementManager {
 
     private final LeadRepo leadRepo;
 
     @Autowired
-    public ActiveLeadManager(LeadRepo leadRepo) {
+    public LeadEngagementManager(LeadRepo leadRepo) {
         this.leadRepo = leadRepo;
     }
 

@@ -2,7 +2,7 @@ package com.saleset.core.rest;
 
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
-import com.saleset.core.service.transaction.leads.ActiveLeadManager;
+import com.saleset.core.service.transaction.leads.LeadEngagementManager;
 import com.saleset.core.service.transaction.EventTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class EventsRestController {
     private QueryUrlGenerator queryUrlGenerator;
 
     @Autowired
-    private ActiveLeadManager activeLeadManager;
+    private LeadEngagementManager leadEngagementManager;
 
     @PostMapping("/email_event")
     public void emailEvent(@RequestBody List<EventDataTransfer> eventDataList) {
@@ -42,7 +42,7 @@ public class EventsRestController {
         eventData.setLeadUUID(leadUUID);
         System.out.println(eventData);
 
-        String bookingUrl = activeLeadManager.getBookingPageUrl(leadUUID);
+        String bookingUrl = leadEngagementManager.getBookingPageUrl(leadUUID);
         System.out.println(bookingUrl);
 
         Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
