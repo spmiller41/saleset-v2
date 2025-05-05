@@ -1,11 +1,9 @@
 package com.saleset.core.service.transaction.leads;
 
-import com.saleset.core.dao.EventRepo;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.LeadDataTransfer;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Contact;
-import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.engine.EngagementEngineImpl;
@@ -19,51 +17,32 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Handles the full transactional workflow for new or re-entering leads entering the system.
- * <p>
- * This service manages lead intake by:
- * <ul>
- *   <li>Validating and normalizing phone numbers using Twilio Lookup</li>
- *   <li>Checking for existing contacts and handling DNC or lead resumption</li>
- *   <li>Inserting new contacts, addresses, and leads when appropriate</li>
- *   <li>Determining follow-up schedules using the Engagement Engine</li>
- * </ul>
- * <p>
- * Designed to be the entry point for processing lead data upon initial submission.
- */
 @Service
 public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
     private final Logger logger = LoggerFactory.getLogger(LeadEntryPipelineManager.class);
 
-    private final EngagementEngineImpl engagementEngine;
     private final ContactTransactionManager contactTransactionManager;
     private final AddressTransactionManager addressTransactionManager;
     private final LeadRepo leadRepo;
-    private final EventRepo eventRepo;
     private final PhoneValidationService phoneValidationService;
     private final QueryUrlGenerator queryUrlGenerator;
+    private final LeadEngagementManager leadEngagementManager;
 
     @Autowired
     public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
                                     ContactTransactionManager contactTransactionManager,
                                     AddressTransactionManager addressTransactionManager,
                                     LeadRepo leadRepo,
-                                    EventRepo eventRepo,
                                     PhoneValidationService phoneValidationService,
-                                    QueryUrlGenerator queryUrlGenerator) {
-        this.engagementEngine = engagementEngine;
+                                    QueryUrlGenerator queryUrlGenerator, LeadEngagementManager leadEngagementManager) {
+        this.leadEngagementManager = leadEngagementManager;
         this.contactTransactionManager = contactTransactionManager;
         this.addressTransactionManager = addressTransactionManager;
         this.leadRepo = leadRepo;
-        this.eventRepo = eventRepo;
         this.phoneValidationService = phoneValidationService;
         this.queryUrlGenerator = queryUrlGenerator;
     }
@@ -136,7 +115,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
                 if (optAddress.isPresent() && lead.getAddressId() != null &&
                         lead.getAddressId().equals(optAddress.get().getId())) {
-                    processLeadResumption(leadData, optAddress.get(), lead);
+                    leadEngagementManager.updateLeadEngagementProcess(leadData, optAddress.get(), lead);
                     return;
                 }
             }
@@ -179,65 +158,6 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
         Optional<Lead> optLead = leadRepo.safeInsert(lead);
         optLead.ifPresent(newLead -> logger.info("Lead inserted successfully: {}", newLead));
     }
-
-
-
-
-    /*
-     * Handles leads that could possibly reenter the system.
-     * If Address is found via ID and matches payload (leadData) address, and the Lead is valid for an update:
-     * 1. Grab any events related to the lead.
-     * 2. Set the next follow-up target date to the following day.
-     * 3. Use engagement engine to determine the most ideal follow-up time.
-     * 4. Generate the next follow-up date/time.
-     * 5. Set Lead to AGED_HIGH_PRIORITY
-     */
-    private void processLeadResumption(LeadDataTransfer leadData, Address address, Lead lead) {
-        if (isExistingAddress(address, leadData) && isValidForUpdate(lead)) {
-            List<Event> eventList = eventRepo.findByLead(lead);
-
-            LocalDate targetDate = LocalDate.now().plusDays(1);
-            LocalTime targetTime = engagementEngine
-                    .determineFollowUpTime(lead.getPreviousFollowUp(), targetDate, eventList);
-            LocalDateTime nextFollowUp = LocalDateTime.of(targetDate, targetTime);
-
-            lead.setNextFollowUp(nextFollowUp);
-            lead.setCurrentStage(LeadStage.AGED_HIGH_PRIORITY.toString());
-
-            Optional<Lead> optUpdatedLead = leadRepo.safeUpdate(lead);
-            optUpdatedLead.ifPresent(updatedLead -> logger.info("Lead reentry - Contains Address. Update successful: {}", updatedLead));
-        }
-    }
-
-
-
-
-    /*
-     * Handles leads that reenter the system without an existing address validation.
-     * If the Lead is valid for an update:
-     * 1. Retrieve any events related to the lead.
-     * 2. Set the next follow-up target date to the following day.
-     * 3. Use the engagement engine to determine the ideal follow-up time.
-     * 4. Generate the next follow-up date and time.
-     * 5. Update the Lead stage to "Aged High Priority."
-     */
-    private void processLeadResumption(Lead lead) {
-        if (isValidForUpdate(lead)) {
-            List<Event> eventList = eventRepo.findByLead(lead);
-
-            LocalDate targetDate = LocalDate.now().plusDays(1);
-            LocalTime targetTime = engagementEngine
-                    .determineFollowUpTime(lead.getPreviousFollowUp(), targetDate, eventList);
-            LocalDateTime nextFollowUp = LocalDateTime.of(targetDate, targetTime);
-
-            lead.setNextFollowUp(nextFollowUp);
-            lead.setCurrentStage(LeadStage.AGED_HIGH_PRIORITY.toString());
-
-            Optional<Lead> optUpdatedLead = leadRepo.safeUpdate(lead);
-            optUpdatedLead.ifPresent(updatedLead -> logger.info("Lead reentry - No Address Update successful: {}", updatedLead));
-        }
-    }
-
 
 
 

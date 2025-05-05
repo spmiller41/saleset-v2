@@ -5,6 +5,8 @@ import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 
+import java.util.List;
+
 public interface LeadWorkflowManager {
 
     default boolean isExistingAddress(Address address, LeadDataTransfer leadData) {
@@ -34,5 +36,14 @@ public interface LeadWorkflowManager {
         // Fallback
         return leadData.getStreet() != null && leadData.getCity() != null && leadData.getState() != null;
     }
+
+    default boolean checkForNullAddressLead(List<Lead> leadList) {
+        return leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
+    }
+
+    default boolean isLeadOnDnc(Lead lead) {
+        return LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage());
+    }
+
 
 }
