@@ -83,6 +83,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
+
     /*
      * Looks up a contact based on the phone numbers provided in the lead data.
      * If a contact is found, it processes the associated leads, checking for:
@@ -98,40 +99,19 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
         optContact.ifPresent(contact -> {
             List<Lead> leadList = leadRepo.findLeadByContact(contact);
 
-            if (leadList.isEmpty()) {
-                logger.error("Contact exists without lead: {}", contact);
-                return;
-            }
+            if (handleContactWithoutLead(contact, leadList)) return;
 
             Optional<Address> optAddress = addressTransactionManager.findAddressMatch(leadData);
+            Address address = optAddress.orElse(null);
+
             boolean payloadHasAddress = leadAddressIsValid(leadData);
-            boolean nullAddressLeadExists = leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
+            boolean nullAddressLeadExists = checkForNullAddressLead(leadList);
 
-            for (Lead lead : leadList) {
-                if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage())) {
-                    logger.warn("Contact belongs to Lead on DNC. Kicking Lead.");
-                    return;
-                }
+            if (handleDncOrMatchedAddress(leadData, address, leadList)) return;
 
-                if (optAddress.isPresent() && lead.getAddressId() != null &&
-                        lead.getAddressId().equals(optAddress.get().getId())) {
-                    leadEngagementManager.updateLeadEngagementProcess(leadData, optAddress.get(), lead);
-                    return;
-                }
-            }
+            if (handleNullAddressDuplicate(payloadHasAddress, nullAddressLeadExists)) return;
 
-            if (!payloadHasAddress && nullAddressLeadExists) {
-                logger.info("Duplicate null-address lead detected. Skipping insert.");
-                return;
-            }
-
-            if (optAddress.isPresent()) {
-                insertNewLead(leadData, contact, optAddress.get());
-            } else if (payloadHasAddress) {
-                processNewAddressExistingContact(leadData, contact);
-            } else {
-                insertNewLead(leadData, contact, null);
-            }
+            handleLeadInsertions(leadData, contact, address, payloadHasAddress);
         });
 
         return optContact;
@@ -161,6 +141,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
+
     /*
      * This method processes a new address for an existing contact.
      * It validates the address from lead data, attempts to insert the address into the database,
@@ -175,5 +156,65 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
     }
 
 
+
+
+    private boolean handleContactWithoutLead(Contact contact, List<Lead> leadList) {
+        if (leadList.isEmpty()) {
+            logger.error("Contact exists without lead: {}", contact);
+            return true;
+        }
+        return false;
+    }
+
+
+
+
+    private boolean handleDncOrMatchedAddress(LeadDataTransfer leadData, Address address, List<Lead> leadList) {
+        for (Lead lead : leadList) {
+            if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage())) {
+                logger.warn("Contact belongs to Lead on DNC. Kicking Lead.");
+                return true;
+            }
+
+            if (address != null && lead.getAddressId() != null &&
+                    lead.getAddressId().equals(address.getId())) {
+                leadEngagementManager.updateLeadEngagementProcess(leadData, address, lead);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+    private boolean checkForNullAddressLead(List<Lead> leadList) {
+        return leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
+    }
+
+
+
+
+    private boolean handleNullAddressDuplicate(boolean payloadHasAddress, boolean nullAddressLeadExists) {
+        if (!payloadHasAddress && nullAddressLeadExists) {
+            logger.info("Duplicate null-address lead detected. Skipping insert.");
+            return true;
+        }
+        return false;
+    }
+
+
+
+
+    private void handleLeadInsertions(LeadDataTransfer leadData, Contact contact,
+                                      Address address, boolean payloadHasAddress) {
+        if (address != null) {
+            insertNewLead(leadData, contact, address);
+        } else if (payloadHasAddress) {
+            processNewAddressExistingContact(leadData, contact);
+        } else {
+            insertNewLead(leadData, contact, null);
+        }
+    }
 
 }

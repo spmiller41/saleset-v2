@@ -37,13 +37,4 @@ public interface LeadWorkflowManager {
         return leadData.getStreet() != null && leadData.getCity() != null && leadData.getState() != null;
     }
 
-    default boolean checkForNullAddressLead(List<Lead> leadList) {
-        return leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
-    }
-
-    default boolean isLeadOnDnc(Lead lead) {
-        return LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage());
-    }
-
-
 }
