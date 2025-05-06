@@ -20,6 +20,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service class responsible for managing the entry pipeline of new and returning leads.
+ * Handles phone validation, contact lookup, address resolution, and lead creation or engagement updates.
+ * <p>
+ * Designed to support re-engagement of existing contacts, prevent duplicates,
+ * and ensure scalable lead intake with clean fallback logic.
+ */
 @Service
 public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
@@ -51,16 +58,10 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
     /**
-     * Manages the processing of a lead, including phone number validation, contact lookup,
-     * address handling, and lead creation or resumption.
-     * <p>
-     * Steps:
-     * 1. Validates and normalizes phone numbers from the lead data.
-     * 2. Looks up an existing contact and processes associated leads if found.
-     * 3. If no contact exists, inserts a new contact and handles address processing.
-     * 4. Creates and inserts a new lead if necessary.
-     * <p>
-     * @param leadData The data transfer object containing lead details such as phone, address, and contact information.
+     * Public entrypoint for managing lead processing logic.
+     * Validates phone numbers, checks for existing contacts, and inserts new leads if necessary.
+     *
+     * @param leadData The incoming lead data submission.
      */
     @Transactional
     public void manageLead(LeadDataTransfer leadData) {
@@ -85,13 +86,11 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
     /*
-     * Looks up a contact based on the phone numbers provided in the lead data.
-     * If a contact is found, it processes the associated leads, checking for:
-     * - DNC (Do Not Contact) status
-     * - Address matches for lead resumption or new lead creation.
+     * Attempts to locate an existing contact by phone and determine if the lead should be re-engaged or skipped.
+     * If matched, performs address validation, duplication checks, and lead engagement updates.
      *
-     * @param leadData The lead data containing phone numbers and address information.
-     * @return An Optional containing the found contact, or empty if no contact is found.
+     * @param leadData The incoming lead data.
+     * @return An Optional containing the matched contact, or empty if not found.
      */
     private Optional<Contact> lookupContactAndProcessLeads(LeadDataTransfer leadData) {
         Optional<Contact> optContact = contactTransactionManager.findByPhone(leadData);
@@ -119,14 +118,10 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
-    
+
     /*
-     * Creates and inserts a new lead with the given lead data, contact, and address.
-     * If the address is null, the lead is created without an associated address.
-     *
-     * @param leadData The lead data containing lead details.
-     * @param contact  The contact associated with the lead.
-     * @param address  The address associated with the lead (can be null).
+     * Inserts a new lead associated with the given contact and optional address.
+     * Configures booking and webhook URLs before persistence.
      */
     private void insertNewLead(LeadDataTransfer leadData, Contact contact, Address address) {
         Lead lead = (address != null)
@@ -143,9 +138,8 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
     /*
-     * This method processes a new address for an existing contact.
-     * It validates the address from lead data, attempts to insert the address into the database,
-     * and then creates a new lead associated with the contact and the inserted address.
+     * Inserts a new address for an existing contact and immediately creates a lead tied to it.
+     * Logs the address insertion before continuing with lead creation.
      */
     private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact) {
         addressTransactionManager.insertNewAddress(leadData)
@@ -158,6 +152,10 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
+    /*
+     * Handles the edge case where a contact exists but has no associated leads.
+     * Logs an error and returns true to prevent further processing.
+     */
     private boolean handleContactWithoutLead(Contact contact, List<Lead> leadList) {
         if (leadList.isEmpty()) {
             logger.error("Contact exists without lead: {}", contact);
@@ -169,6 +167,10 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
+    /*
+     * Checks if any lead is on the DNC list or has a matching/null address to trigger re-engagement logic.
+     * If conditions match, updates lead engagement and halts further insert logic.
+     */
     private boolean handleDncOrMatchedAddress(LeadDataTransfer leadData, Address address, List<Lead> leadList) {
         for (Lead lead : leadList) {
             if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage())) {
@@ -181,6 +183,11 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
                 leadEngagementManager.updateLeadEngagementProcess(leadData, address, lead);
                 return true;
             }
+
+            if (address == null && lead.getAddressId() == null) {
+                leadEngagementManager.updateLeadEngagementProcess(lead);
+                return true;
+            }
         }
         return false;
     }
@@ -188,13 +195,10 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
-    private boolean checkForNullAddressLead(List<Lead> leadList) {
-        return leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
-    }
-
-
-
-
+    /*
+     * Prevents inserting a second null-address lead for a contact.
+     * Returns true if one already exists and the payload has no address.
+     */
     private boolean handleNullAddressDuplicate(boolean payloadHasAddress, boolean nullAddressLeadExists) {
         if (!payloadHasAddress && nullAddressLeadExists) {
             logger.info("Duplicate null-address lead detected. Skipping insert.");
@@ -206,6 +210,23 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
 
+    /*
+     * Checks if the lead list contains any leads that do not have an address ID assigned.
+     *
+     * @param leadList List of leads tied to a contact.
+     * @return true if any lead has a null address ID.
+     */
+    private boolean checkForNullAddressLead(List<Lead> leadList) {
+        return leadList.stream().anyMatch(lead -> lead.getAddressId() == null);
+    }
+
+
+
+
+    /*
+     * Determines the appropriate insertion path based on whether an address is present or needs to be created.
+     * Supports three outcomes: insert with address, insert new address then lead, or insert without address.
+     */
     private void handleLeadInsertions(LeadDataTransfer leadData, Contact contact,
                                       Address address, boolean payloadHasAddress) {
         if (address != null) {
