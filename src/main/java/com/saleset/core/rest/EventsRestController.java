@@ -1,7 +1,9 @@
 package com.saleset.core.rest;
 
+import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
+import com.saleset.core.entities.Lead;
 import com.saleset.core.service.transaction.leads.LeadEngagementManager;
 import com.saleset.core.service.transaction.EventTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
@@ -27,6 +29,9 @@ public class EventsRestController {
     @Autowired
     private LeadEngagementManager leadEngagementManager;
 
+    @Autowired
+    private LeadRepo leadRepo;
+
     @PostMapping("/email_event")
     public void emailEvent(@RequestBody List<EventDataTransfer> eventDataList) {
         eventDataList.forEach(eventData -> {
@@ -46,6 +51,11 @@ public class EventsRestController {
         System.out.println(bookingUrl);
 
         Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
+        optEvent.flatMap(event -> leadRepo.findLeadById(event.getLeadId())).ifPresent(lead -> {
+            if (lead.getAddressId() != null) {
+                leadEngagementManager.updateLeadEngagementOnEvent(lead);
+            }
+        });
 
         // Return HTTP 302 redirect to the booking URL
         return ResponseEntity.status(HttpStatus.FOUND)
