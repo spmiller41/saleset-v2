@@ -184,7 +184,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
                 return true;
             }
 
-            if (address == null && lead.getAddressId() == null) {
+            if (address == null && lead.getAddressId() == null && !leadAddressIsValid(leadData)) {
                 leadEngagementManager.updateLeadEngagementProcess(lead);
                 return true;
             }
