@@ -114,6 +114,24 @@ public class LeadEngagementManager implements LeadWorkflowManager {
     }
 
 
+
+
+    /**
+     * Updates the engagement process for a lead triggered by an event interaction,
+     * ensuring the lead is eligible for update before applying.
+     *
+     * @param lead The lead associated with the event.
+     */
+    public void updateLeadEngagementOnEvent(Lead lead) {
+        if (isValidForUpdate(lead)) {
+            List<Event> eventList = eventRepo.findByLead(lead);
+            updateLeadEngagement(lead, eventList, "Lead Event - Update Successful");
+        }
+    }
+
+
+
+
     /*
      * Updates a lead's next follow-up date and stage based on engagement history and
      * optimal time calculation. Also persists and logs the update.
@@ -129,6 +147,7 @@ public class LeadEngagementManager implements LeadWorkflowManager {
         LocalDateTime nextFollowUp = LocalDateTime.of(targetDate, targetTime);
 
         lead.setNextFollowUp(nextFollowUp);
+        lead.setStageUpdatedAt(LocalDateTime.now());
         lead.setCurrentStage(LeadStage.AGED_HIGH_PRIORITY.toString());
 
         Optional<Lead> optUpdatedLead = leadRepo.safeUpdate(lead);
