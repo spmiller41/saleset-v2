@@ -5,6 +5,7 @@ import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
+import com.saleset.core.enums.EventSource;
 import com.saleset.core.service.cache.EventCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +43,13 @@ public class EventTransactionManager {
      * @param eventData The event data transfer object containing event details.
      * @return An {@code Optional} containing the inserted event if successful, otherwise empty.
      */
-    public Optional<Event> insertEventHandler(EventDataTransfer eventData) {
+    public Optional<Event> insertEventHandler(EventDataTransfer eventData, EventSource eventSource) {
         boolean isInsertable = cacheManager.cacheEvent(eventData);
         if (!isInsertable) return Optional.empty();
 
         Optional<Lead> optLead = leadRepo.findLeadByUUID(eventData.getLeadUUID());
         if (optLead.isPresent()) {
-            Event event = new Event(optLead.get(), eventData);
+            Event event = new Event(optLead.get(), eventData, eventSource);
             Optional<Event> optEvent = eventRepo.safeInsert(event);
             if (optEvent.isPresent()) {
                 logger.info("Event inserted successfully: {}", optEvent.get());

@@ -4,6 +4,7 @@ import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
+import com.saleset.core.enums.EventSource;
 import com.saleset.core.service.transaction.leads.LeadEngagementManager;
 import com.saleset.core.service.transaction.EventTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
@@ -35,7 +36,7 @@ public class EventsRestController {
     @PostMapping("/email_event")
     public void emailEvent(@RequestBody List<EventDataTransfer> eventDataList) {
         eventDataList.forEach(eventData -> {
-            Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
+            Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData, EventSource.EMAIL);
         });
     }
 
@@ -50,7 +51,7 @@ public class EventsRestController {
         String bookingUrl = leadEngagementManager.getBookingPageUrl(leadUUID);
         System.out.println(bookingUrl);
 
-        Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData);
+        Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData, EventSource.SMS);
         optEvent.flatMap(event -> leadRepo.findLeadById(event.getLeadId())).ifPresent(lead -> {
             if (lead.getAddressId() != null) {
                 leadEngagementManager.updateLeadEngagementOnEvent(lead);
