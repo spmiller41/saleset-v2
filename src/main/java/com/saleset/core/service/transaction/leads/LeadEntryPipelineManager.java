@@ -11,6 +11,8 @@ import com.saleset.core.service.sms.PhoneValidationService;
 import com.saleset.core.service.transaction.AddressTransactionManager;
 import com.saleset.core.service.transaction.ContactTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
+import com.saleset.core.util.RebrandlyUrlGenerator;
+import com.saleset.core.util.TinyUrlGenerator;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,8 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
     private final PhoneValidationService phoneValidationService;
     private final QueryUrlGenerator queryUrlGenerator;
     private final LeadEngagementManager leadEngagementManager;
+    private final TinyUrlGenerator tinyUrlGenerator;
+    private final RebrandlyUrlGenerator rebrandlyUrlGenerator;
 
     @Autowired
     public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
@@ -45,13 +49,18 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
                                     AddressTransactionManager addressTransactionManager,
                                     LeadRepo leadRepo,
                                     PhoneValidationService phoneValidationService,
-                                    QueryUrlGenerator queryUrlGenerator, LeadEngagementManager leadEngagementManager) {
+                                    QueryUrlGenerator queryUrlGenerator,
+                                    LeadEngagementManager leadEngagementManager,
+                                    TinyUrlGenerator tinyUrlGenerator,
+                                    RebrandlyUrlGenerator rebrandlyUrlGenerator) {
         this.leadEngagementManager = leadEngagementManager;
         this.contactTransactionManager = contactTransactionManager;
         this.addressTransactionManager = addressTransactionManager;
         this.leadRepo = leadRepo;
         this.phoneValidationService = phoneValidationService;
         this.queryUrlGenerator = queryUrlGenerator;
+        this.tinyUrlGenerator = tinyUrlGenerator;
+        this.rebrandlyUrlGenerator = rebrandlyUrlGenerator;
     }
 
 
@@ -120,15 +129,29 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
 
     /*
-     * Inserts a new lead associated with the given contact and optional address.
-     * Configures booking and webhook URLs before persistence.
+     * Creates and inserts a new Lead entity tied to the provided contact and address.
+     * Populates booking and tracking URLs using the query generator.
+     * Optionally supports shortening URLs (currently commented out for performance/testing).
+     *
+     * @param leadData The incoming data transfer object containing lead details.
+     * @param contact  The contact to associate the lead with.
+     * @param address  The address to associate the lead with (nullable).
      */
     private void insertNewLead(LeadDataTransfer leadData, Contact contact, Address address) {
         Lead lead = (address != null)
                 ? new Lead(leadData, contact, address)
                 : new Lead(leadData, contact);
+
         lead.setBookingPageUrl(queryUrlGenerator.buildBooking(lead, contact, address));
         lead.setTrackingWebhookUrl(queryUrlGenerator.buildTracking(lead));
+
+        /*
+        String shortUrlTracking = shortenUrl(lead.getTrackingWebhookUrl(), "sms event tracking");
+        String shortUrlBooking = shortenUrl(lead.getBookingPageUrl(), "booking page");
+
+        lead.setTrackingWebhookUrl(shortUrlTracking);
+        lead.setBookingPageUrl(shortUrlBooking);
+        */
 
         Optional<Lead> optLead = leadRepo.safeInsert(lead);
         optLead.ifPresent(newLead -> logger.info("Lead inserted successfully: {}", newLead));
@@ -237,5 +260,34 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
             insertNewLead(leadData, contact, null);
         }
     }
+
+
+
+
+    /*
+     * Attempts to shorten the given URL using TinyURL first.
+     * Falls back to Rebrandly if TinyURL fails.
+     * If both fail, returns the original URL.
+     *
+     * @param originalUrl The full URL to be shortened.
+     * @param context     A string indicating what the URL is used for (used for logging).
+     * @return A shortened version of the URL, or the original if shortening fails.
+     */
+    private String shortenUrl(String originalUrl, String context) {
+        try {
+            return tinyUrlGenerator.createTinyUrl(originalUrl);
+        } catch (Exception ex) {
+            logger.warn("TinyURL failed for {}: {}", context, ex.getMessage());
+            try {
+                return rebrandlyUrlGenerator.createRebrandlyURL(originalUrl);
+            } catch (Exception exc) {
+                logger.error("Rebrandly failed for {}: {}", context, exc.getMessage());
+                return originalUrl;
+            }
+        }
+    }
+
+
+
 
 }
