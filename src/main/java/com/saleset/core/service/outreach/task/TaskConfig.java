@@ -1,4 +1,4 @@
-package com.saleset.core.service.outreach;
+package com.saleset.core.service.outreach.task;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,7 @@
-package com.saleset.core.service.outreach;
+package com.saleset.core.service.outreach.task;
 
 import com.saleset.core.dao.LeadRepo;
+import com.saleset.core.service.outreach.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
