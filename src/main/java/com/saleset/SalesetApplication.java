@@ -17,10 +17,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Optional;
 
 @SpringBootApplication
+@EnableScheduling
 public class SalesetApplication {
 
 	public static void main(String[] args) {
@@ -28,17 +30,10 @@ public class SalesetApplication {
 	}
 
 	/*
-	@Autowired
-	private LeadRepo leadRepo;
-
-	@Autowired
-	private Dispatcher dispatcher;
-
 	@Bean
 	public CommandLineRunner demo() {
 		return (args) -> {
-			Optional<Lead> optLead = leadRepo.findLeadById(1);
-			optLead.ifPresent(lead -> dispatcher.executeFollowUp(lead));
+
 		};
 	}
 	*/
