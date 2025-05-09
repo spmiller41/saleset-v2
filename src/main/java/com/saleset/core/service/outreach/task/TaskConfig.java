@@ -1,9 +1,9 @@
 package com.saleset.core.service.outreach.task;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class TaskConfig {
 
     @Value("${task.followUpWindowMinutes}")
