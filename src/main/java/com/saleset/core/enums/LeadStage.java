@@ -9,11 +9,11 @@ package com.saleset.core.enums;
  */
 public enum LeadStage {
 
-    NEW("New", 4.0, 20),
+    NEW("New", 4.0, 5),
     AGED_LOW_PRIORITY("Aged_Low_Priority", 2.0, null),
-    AGED_HIGH_PRIORITY("Aged_High_Priority", 0.75, 10),
-    RETARGETED_NO_SHOW("Retargeted_No_Show", 2.0, 20),
-    RETARGETED_REHASH("Retargeted_Rehash", 2.0, 20),
+    AGED_HIGH_PRIORITY("Aged_High_Priority", 0.75, 5),
+    RETARGETED_NO_SHOW("Retargeted_No_Show", 2.0, 5),
+    RETARGETED_REHASH("Retargeted_Rehash", 2.0, 5),
     CONVERTED("Converted", null, null),
     DNC("Do_Not_Call", null, null);
 
