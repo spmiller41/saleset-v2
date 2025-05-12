@@ -209,12 +209,12 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
 
             if (address != null && lead.getAddressId() != null &&
                     lead.getAddressId().equals(address.getId())) {
-                leadEngagementManager.updateLeadEngagementProcess(leadData, address, lead);
+                leadEngagementManager.updateEngagementOnLeadResumption(leadData, address, lead);
                 return true;
             }
 
             if (address == null && lead.getAddressId() == null && !leadAddressIsValid(leadData)) {
-                leadEngagementManager.updateLeadEngagementProcess(lead);
+                leadEngagementManager.updateEngagementOnLeadResumption(lead);
                 return true;
             }
         }
