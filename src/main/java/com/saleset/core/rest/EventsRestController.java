@@ -3,7 +3,6 @@ package com.saleset.core.rest;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.EventDataTransfer;
 import com.saleset.core.entities.Event;
-import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.EventSource;
 import com.saleset.core.service.transaction.leads.LeadEngagementManager;
 import com.saleset.core.service.transaction.EventTransactionManager;
@@ -54,7 +53,7 @@ public class EventsRestController {
         Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData, EventSource.SMS);
         optEvent.flatMap(event -> leadRepo.findLeadById(event.getLeadId())).ifPresent(lead -> {
             if (lead.getAddressId() != null) {
-                leadEngagementManager.updateLeadEngagementOnEvent(lead);
+                leadEngagementManager.updateEngagementOnLeadEvent(lead);
             }
         });
 
