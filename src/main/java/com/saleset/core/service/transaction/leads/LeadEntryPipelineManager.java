@@ -7,6 +7,7 @@ import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.engine.EngagementEngineImpl;
+import com.saleset.core.service.outreach.task.TaskConfig;
 import com.saleset.core.service.sms.PhoneValidationService;
 import com.saleset.core.service.transaction.AddressTransactionManager;
 import com.saleset.core.service.transaction.ContactTransactionManager;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +44,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
     private final LeadEngagementManager leadEngagementManager;
     private final TinyUrlGenerator tinyUrlGenerator;
     private final RebrandlyUrlGenerator rebrandlyUrlGenerator;
+    private final TaskConfig taskConfig;
 
     @Autowired
     public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
@@ -52,7 +55,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
                                     QueryUrlGenerator queryUrlGenerator,
                                     LeadEngagementManager leadEngagementManager,
                                     TinyUrlGenerator tinyUrlGenerator,
-                                    RebrandlyUrlGenerator rebrandlyUrlGenerator) {
+                                    RebrandlyUrlGenerator rebrandlyUrlGenerator, TaskConfig taskConfig) {
         this.leadEngagementManager = leadEngagementManager;
         this.contactTransactionManager = contactTransactionManager;
         this.addressTransactionManager = addressTransactionManager;
@@ -61,6 +64,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
         this.queryUrlGenerator = queryUrlGenerator;
         this.tinyUrlGenerator = tinyUrlGenerator;
         this.rebrandlyUrlGenerator = rebrandlyUrlGenerator;
+        this.taskConfig = taskConfig;
     }
 
 
@@ -138,9 +142,11 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * @param address  The address to associate the lead with (nullable).
      */
     private void insertNewLead(LeadDataTransfer leadData, Contact contact, Address address) {
+        LocalDateTime scheduledOutreach = LocalDateTime.now().plusMinutes(taskConfig.getFollowUpWindowMinutes() + 1);
+
         Lead lead = (address != null)
-                ? new Lead(leadData, contact, address)
-                : new Lead(leadData, contact);
+                ? new Lead(leadData, contact, address, scheduledOutreach)
+                : new Lead(leadData, contact, scheduledOutreach);
 
         lead.setBookingPageUrl(queryUrlGenerator.buildBooking(lead, contact, address));
         lead.setTrackingWebhookUrl(queryUrlGenerator.buildTracking(lead));
