@@ -79,13 +79,13 @@ public class EngagementEngineImpl implements EngagementEngine {
      * Determines the next follow-up date based on the time since the last follow-up
      * and a divisor that adjusts the frequency of follow-ups.
      *
-     * @param fromDate the date and time of the last follow-up
+     * @param leadCreatedAt the date and time of when the lead entered
      * @param follow_up_divisor the divisor to calculate follow-up frequency
      * @return the LocalDate for the next follow-up
      */
     @Override
-    public LocalDate determineFollowUpDate(LocalDateTime fromDate, double follow_up_divisor) {
-        long daysFromLastFollowUp = Math.abs(ChronoUnit.DAYS.between(fromDate.toLocalDate(), LocalDate.now()));
+    public LocalDate determineFollowUpDate(LocalDateTime leadCreatedAt, double follow_up_divisor) {
+        long daysFromLastFollowUp = Math.abs(ChronoUnit.DAYS.between(leadCreatedAt.toLocalDate(), LocalDate.now()));
         long daysUntilFollowUp = (long) (daysFromLastFollowUp / follow_up_divisor);
         if (daysUntilFollowUp == 0) daysUntilFollowUp = 1;
         return LocalDate.now().plusDays(daysUntilFollowUp);
@@ -104,21 +104,18 @@ public class EngagementEngineImpl implements EngagementEngine {
      * </ul>
      *
      * @param stageUpdatedAt the date and time the lead's stage was last updated
-     * @param maxDaysInStage the maximum number of days allowed in the current stage before aging
      * @param currentStage the current stage of the lead
      * @param originalStage the original classification of the lead
      * @return the LeadStage indicating the appropriate next stage of the lead
      */
-
     @Override
-    public LeadStage determineNextStage(LocalDateTime stageUpdatedAt, int maxDaysInStage,
-                                        LeadStage currentStage, LeadStage originalStage) {
-
+    public LeadStage determineNextStage(LocalDateTime stageUpdatedAt, LeadStage currentStage, LeadStage originalStage) {
         if (currentStage == LeadStage.AGED_LOW_PRIORITY) {
             return LeadStage.AGED_LOW_PRIORITY;
         }
 
         long daysInCurrentStage = ChronoUnit.DAYS.between(stageUpdatedAt.toLocalDate(), LocalDate.now());
+        int maxDaysInStage = currentStage.getMaxDaysInStage();
 
         if (daysInCurrentStage >= maxDaysInStage) {
             return LeadStage.AGED_LOW_PRIORITY;

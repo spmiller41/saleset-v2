@@ -30,7 +30,7 @@ public interface EngagementEngine {
 
     LocalTime determineFollowUpTime(LocalDateTime previousFollowUp, LocalDate targetDate, List<Event> leadEventList);
     LocalDate determineFollowUpDate(LocalDateTime fromDate, double follow_up_divisor);
-    LeadStage determineNextStage(LocalDateTime stageUpdatedAt, int maxDaysInStage, LeadStage currentStage, LeadStage originalStage);
+    LeadStage determineNextStage(LocalDateTime stageUpdatedAt, LeadStage currentStage, LeadStage originalStage);
 
 
     /**
