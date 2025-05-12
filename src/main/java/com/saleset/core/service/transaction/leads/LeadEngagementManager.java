@@ -91,7 +91,7 @@ public class LeadEngagementManager implements LeadWorkflowManager {
      * @param lead The existing lead to resume.
      */
     @Transactional
-    public void updateLeadEngagementProcess(LeadDataTransfer leadData, Address address, Lead lead) {
+    public void updateEngagementOnLeadResumption(LeadDataTransfer leadData, Address address, Lead lead) {
         if (isExistingAddress(address, leadData) && isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
             updateLeadEngagement(lead, eventList, "Lead reentry - Contains Address. Update successful");
@@ -106,7 +106,7 @@ public class LeadEngagementManager implements LeadWorkflowManager {
      * @param lead The existing lead to resume follow-up for.
      */
     @Transactional
-    public void updateLeadEngagementProcess(Lead lead) {
+    public void updateEngagementOnLeadResumption(Lead lead) {
         if (isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
             updateLeadEngagement(lead, eventList, "Lead reentry - No Address Update successful");
@@ -122,7 +122,7 @@ public class LeadEngagementManager implements LeadWorkflowManager {
      *
      * @param lead The lead associated with the event.
      */
-    public void updateLeadEngagementOnEvent(Lead lead) {
+    public void updateEngagementOnLeadEvent(Lead lead) {
         if (isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
             updateLeadEngagement(lead, eventList, "Lead Event - Update Successful");
@@ -153,5 +153,48 @@ public class LeadEngagementManager implements LeadWorkflowManager {
         Optional<Lead> optUpdatedLead = leadRepo.safeUpdate(lead);
         optUpdatedLead.ifPresent(updatedLead -> logger.info("{}: {}", logMessage, updatedLead));
     }
+
+
+
+
+    /**
+     * Handles the full engagement update cycle for a lead after follow-up contact.
+     * <p>
+     * This includes:
+     * - Recalculating the lead's stage based on how long it's been in the current one
+     * - Setting the next follow-up date and time using engagement history and divisor logic
+     * - Incrementing follow-up count and updating timestamps
+     * <p>
+     * Assumes SMS/email/call dispatching has already been executed externally.
+     *
+     * @param lead The lead being updated post-engagement.
+     */
+    @Transactional
+    public void handleFollowUpExecution(Lead lead) {
+
+        LeadStage originalStage = LeadStage.fromString(lead.getOriginalStage());
+        LeadStage currentStage = LeadStage.fromString(lead.getCurrentStage());
+        LocalDateTime stageUpdatedAt = lead.getStageUpdatedAt();
+
+        LeadStage nextStage = engagementEngine.determineNextStage(stageUpdatedAt, currentStage, originalStage);
+        if (!currentStage.equals(nextStage)) {
+            lead.setCurrentStage(nextStage.toString());
+            lead.setStageUpdatedAt(LocalDateTime.now());
+        }
+
+        List<Event> eventList = eventRepo.findByLead(lead);
+        LocalDate nextFollowUpDate = engagementEngine.determineFollowUpDate(lead.getCreatedAt(), nextStage.getFrequencyDivisor());
+        LocalTime nextFollowUpTime = engagementEngine.determineFollowUpTime(LocalDateTime.now(), nextFollowUpDate, eventList);
+
+        lead.setNextFollowUp(LocalDateTime.of(nextFollowUpDate, nextFollowUpTime));
+        lead.setPreviousFollowUp(LocalDateTime.now());
+        lead.setFollowUpCount(lead.getFollowUpCount() + 1);
+
+        leadRepo.safeUpdate(lead).ifPresent(updated ->
+                logger.info("Follow-up executed and updated for Lead: {}", updated)
+        );
+
+    }
+
 
 }
