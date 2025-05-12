@@ -69,7 +69,7 @@ public class Lead {
         return id;
     }
 
-    public Lead(LeadDataTransfer leadData, Contact contact, Address address) {
+    public Lead(LeadDataTransfer leadData, Contact contact, Address address, LocalDateTime scheduledOutreach) {
         setContactId(contact.getId());
         setAddressId(address.getId());
         setUuid(UUID.randomUUID().toString());
@@ -78,14 +78,14 @@ public class Lead {
         setOriginalStage(leadData.getStage());
         setCurrentStage(leadData.getStage());
         setStageUpdatedAt(LocalDateTime.now());
-        setNextFollowUp(LocalDateTime.now().plusMinutes(6));
-        setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
+        setNextFollowUp(scheduledOutreach);
+        setPreviousFollowUp(scheduledOutreach);
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
         setExternalId(leadData.getExternalId());
     }
 
-    public Lead(LeadDataTransfer leadData, Contact contact) {
+    public Lead(LeadDataTransfer leadData, Contact contact, LocalDateTime scheduledOutreach) {
         setContactId(contact.getId());
         setUuid(UUID.randomUUID().toString());
         setFollowUpCount(0);
@@ -93,8 +93,8 @@ public class Lead {
         setOriginalStage(leadData.getStage());
         setCurrentStage(leadData.getStage());
         setStageUpdatedAt(LocalDateTime.now());
-        setNextFollowUp(LocalDateTime.now().plusMinutes(6));
-        setPreviousFollowUp(LocalDateTime.now().plusMinutes(6));
+        setNextFollowUp(scheduledOutreach);
+        setPreviousFollowUp(scheduledOutreach);
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
         setExternalId(leadData.getExternalId());
