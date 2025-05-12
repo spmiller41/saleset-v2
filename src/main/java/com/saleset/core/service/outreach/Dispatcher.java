@@ -47,9 +47,10 @@ public class Dispatcher implements PhoneRoutingStrategy {
         }
 
         String fromNumber = determineFromNumber(lead, optContact.get());
+        int followUpCount = lead.getFollowUpCount() + 1;
         String body = "Hello, " + optContact.get().getFirstName()
                 + ". Current beta testing. Booking link below: \n" + lead.getTrackingWebhookUrl()
-                + "\n" + "Follow-up count" + lead.getFollowUpCount() + 1;
+                + "\n" + "Follow-up count: " + followUpCount;
 
         twilioManager.sendSMS(fromNumber, optContact.get().getPrimaryPhone(), body);
     }
