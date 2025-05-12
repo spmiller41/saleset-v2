@@ -39,7 +39,7 @@ public class Dispatcher implements PhoneRoutingStrategy {
     }
 
 
-    public void executeFollowUp(Lead lead) {
+    public void executeSmsFollowUp(Lead lead) {
         Optional<Contact> optContact = contactRepo.findContactById(lead.getContactId());
         if (optContact.isEmpty()) {
             logger.error("Contact could not be found when attempting dispatch for Lead: {}", lead);
@@ -47,7 +47,11 @@ public class Dispatcher implements PhoneRoutingStrategy {
         }
 
         String fromNumber = determineFromNumber(lead, optContact.get());
-        System.out.println("From Number: " + fromNumber);
+        String body = "Hello, " + optContact.get().getFirstName()
+                + ". Current beta testing. Booking link below: \n" + lead.getTrackingWebhookUrl()
+                + "\n" + "Follow-up count" + lead.getFollowUpCount() + 1;
+
+        twilioManager.sendSMS(fromNumber, optContact.get().getPrimaryPhone(), body);
     }
 
 
