@@ -1,25 +1,10 @@
 package com.saleset;
 
-import com.saleset.core.dao.ContactRepo;
-import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dao.MarketZipDataRepo;
-import com.saleset.core.dto.LeadDataTransfer;
-import com.saleset.core.entities.Address;
-import com.saleset.core.entities.Contact;
-import com.saleset.core.entities.Lead;
-import com.saleset.core.entities.MarketZipData;
-import com.saleset.core.service.outreach.Dispatcher;
-import com.saleset.core.service.sms.TwilioManager;
-import com.saleset.core.util.QueryUrlGenerator;
-import com.twilio.rest.api.v2010.account.Message;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.util.Optional;
 
 @SpringBootApplication
 @EnableScheduling
@@ -32,9 +17,7 @@ public class SalesetApplication {
 	/*
 	@Bean
 	public CommandLineRunner demo() {
-		return (args) -> {
-
-		};
+		return (args) -> {};
 	}
 	*/
 
