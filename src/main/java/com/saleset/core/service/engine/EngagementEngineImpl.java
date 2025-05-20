@@ -76,16 +76,17 @@ public class EngagementEngineImpl implements EngagementEngine {
 
 
     /**
-     * Determines the next follow-up date based on the time since the last follow-up
-     * and a divisor that adjusts the frequency of follow-ups.
+     * Determines the next follow-up date based on the elapsed time since a reference event
+     * (either when the lead stage was updated or when the lead was created)
+     * and a divisor that adjusts follow-up frequency.
      *
-     * @param leadCreatedAt the date and time of when the lead entered
-     * @param follow_up_divisor the divisor to calculate follow-up frequency
+     * @param referenceDate     the date and time to base the calculation on (e.g., stageUpdatedAt or createdAt)
+     * @param follow_up_divisor the divisor used to scale the number of days until follow-up
      * @return the LocalDate for the next follow-up
      */
     @Override
-    public LocalDate determineFollowUpDate(LocalDateTime leadCreatedAt, double follow_up_divisor) {
-        long daysFromLastFollowUp = Math.abs(ChronoUnit.DAYS.between(leadCreatedAt.toLocalDate(), LocalDate.now()));
+    public LocalDate determineFollowUpDate(LocalDateTime referenceDate, double follow_up_divisor) {
+        long daysFromLastFollowUp = Math.abs(ChronoUnit.DAYS.between(referenceDate.toLocalDate(), LocalDate.now()));
         long daysUntilFollowUp = (long) (daysFromLastFollowUp / follow_up_divisor);
         if (daysUntilFollowUp == 0) daysUntilFollowUp = 1;
         return LocalDate.now().plusDays(daysUntilFollowUp);
