@@ -183,8 +183,15 @@ public class LeadEngagementManager implements LeadWorkflowManager {
         }
 
         List<Event> eventList = eventRepo.findByLead(lead);
-        LocalDate nextFollowUpDate = engagementEngine.determineFollowUpDate(lead.getCreatedAt(), nextStage.getFrequencyDivisor());
-        LocalTime nextFollowUpTime = engagementEngine.determineFollowUpTime(LocalDateTime.now(), nextFollowUpDate, eventList);
+
+        LocalDate nextFollowUpDate = engagementEngine.determineFollowUpDate(
+                nextStage == LeadStage.AGED_HIGH_PRIORITY
+                        ? lead.getStageUpdatedAt()
+                        : lead.getCreatedAt(),
+                nextStage.getFrequencyDivisor()
+        );
+        LocalTime nextFollowUpTime =
+                engagementEngine.determineFollowUpTime(LocalDateTime.now(), nextFollowUpDate, eventList);
 
         lead.setNextFollowUp(LocalDateTime.of(nextFollowUpDate, nextFollowUpTime));
         lead.setPreviousFollowUp(LocalDateTime.now());
