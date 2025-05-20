@@ -135,7 +135,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
     /*
      * Creates and inserts a new Lead entity tied to the provided contact and address.
      * Populates booking and tracking URLs using the query generator.
-     * Optionally supports shortening URLs (currently commented out for performance/testing).
+     * Optionally supports shortening URLs (may be commented out for performance/testing).
      *
      * @param leadData The incoming data transfer object containing lead details.
      * @param contact  The contact to associate the lead with.
@@ -151,13 +151,11 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
         lead.setBookingPageUrl(queryUrlGenerator.buildBooking(lead, contact, address));
         lead.setTrackingWebhookUrl(queryUrlGenerator.buildTracking(lead));
 
-        /*
         String shortUrlTracking = shortenUrl(lead.getTrackingWebhookUrl(), "sms event tracking");
         String shortUrlBooking = shortenUrl(lead.getBookingPageUrl(), "booking page");
 
         lead.setTrackingWebhookUrl(shortUrlTracking);
         lead.setBookingPageUrl(shortUrlBooking);
-        */
 
         Optional<Lead> optLead = leadRepo.safeInsert(lead);
         optLead.ifPresent(newLead -> logger.info("Lead inserted successfully: {}", newLead));
