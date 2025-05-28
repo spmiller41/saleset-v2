@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * LeadOutreachTask is responsible for scheduling and executing follow-up communication tasks
@@ -51,15 +53,19 @@ public class LeadOutreachTask {
     /*
      * Executes the lead outreach task:
      * - Retrieves leads due for follow-up within the configured time window.
-     * - Sends SMS follow-ups to each lead via the Dispatcher.
-     * - Updates engagement metadata such as next follow-up time and stage.
+     * - Ensures each contact receives only one follow-up per run, even if tied to multiple leads.
+     * - Sends SMS follow-ups via the Dispatcher.
+     * - Updates engagement metadata such as next follow-up time, stage, and follow-up count.
      */
     private void runOutreachTask() {
         logger.info("Task Executed: {}", LocalDateTime.now());
 
         List<Lead> leadList = engagementManager.scanForFollowUpLeads(taskConfig.getFollowUpWindowMinutes());
+        Set<Integer> contactedContactIds = new HashSet<>();
+
         leadList.forEach(lead -> {
-            dispatcher.executeSmsFollowUp(lead);
+            // Only dispatch follow-up if this contact hasn't already been processed during this task run
+            if (contactedContactIds.add(lead.getContactId())) dispatcher.executeSmsFollowUp(lead);
             engagementManager.handleFollowUpExecution(lead);
         });
     }
