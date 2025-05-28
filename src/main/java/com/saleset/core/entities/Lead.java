@@ -63,7 +63,7 @@ public class Lead {
     private String zcrmExternalId;
 
     @Column(name = "zcrm_auto_number")
-    private String zcrm_auto_number;
+    private String zcrmAutoNumber;
 
     public Lead() {}
 
@@ -85,6 +85,7 @@ public class Lead {
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
         setZcrmExternalId(leadData.getZcrmExternalId());
+        setZcrmAutoNumber(leadData.getZcrmAutoNumber());
     }
 
     public Lead(LeadDataTransfer leadData, Contact contact, LocalDateTime scheduledOutreach) {
@@ -100,6 +101,7 @@ public class Lead {
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
         setZcrmExternalId(leadData.getZcrmExternalId());
+        setZcrmAutoNumber(leadData.getZcrmAutoNumber());
     }
 
     public void setId(int id) {
@@ -206,9 +208,9 @@ public class Lead {
         this.zcrmExternalId = zcrmExternalId;
     }
 
-    public String getZcrm_auto_number() { return zcrm_auto_number; }
+    public String getZcrmAutoNumber() { return zcrmAutoNumber; }
 
-    public void setZcrm_auto_number(String zcrm_auto_number) { this.zcrm_auto_number = zcrm_auto_number; }
+    public void setZcrmAutoNumber(String zcrmAutoNumber) { this.zcrmAutoNumber = zcrmAutoNumber; }
 
     public String getOriginalStage() { return originalStage; }
 
@@ -237,7 +239,7 @@ public class Lead {
                 ", leadSource='" + leadSource + '\'' +
                 ", subSource='" + subSource + '\'' +
                 ", zcrmExternalId='" + zcrmExternalId + '\'' +
-                ", zcrm_auto_number='" + zcrm_auto_number + '\'' +
+                ", zcrmAutoNumber='" + zcrmAutoNumber + '\'' +
                 '}';
     }
 
