@@ -1,7 +1,6 @@
 package com.saleset.core.entities;
 
 import com.saleset.core.dto.LeadDataTransfer;
-import com.saleset.core.enums.LeadStage;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -60,8 +59,11 @@ public class Lead {
     @Column(name = "sub_source")
     private String subSource;
 
-    @Column(name = "external_id")
-    private String externalId;
+    @Column(name = "zcrm_external_id")
+    private String zcrmExternalId;
+
+    @Column(name = "zcrm_auto_number")
+    private String zcrm_auto_number;
 
     public Lead() {}
 
@@ -82,7 +84,7 @@ public class Lead {
         setPreviousFollowUp(scheduledOutreach);
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
-        setExternalId(leadData.getExternalId());
+        setZcrmExternalId(leadData.getZcrmExternalId());
     }
 
     public Lead(LeadDataTransfer leadData, Contact contact, LocalDateTime scheduledOutreach) {
@@ -97,7 +99,7 @@ public class Lead {
         setPreviousFollowUp(scheduledOutreach);
         setLeadSource(leadData.getLeadSource());
         setSubSource(leadData.getSubSource());
-        setExternalId(leadData.getExternalId());
+        setZcrmExternalId(leadData.getZcrmExternalId());
     }
 
     public void setId(int id) {
@@ -196,13 +198,17 @@ public class Lead {
         this.subSource = subSource;
     }
 
-    public String getExternalId() {
-        return externalId;
+    public String getZcrmExternalId() {
+        return zcrmExternalId;
     }
 
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
+    public void setZcrmExternalId(String zcrmExternalId) {
+        this.zcrmExternalId = zcrmExternalId;
     }
+
+    public String getZcrm_auto_number() { return zcrm_auto_number; }
+
+    public void setZcrm_auto_number(String zcrm_auto_number) { this.zcrm_auto_number = zcrm_auto_number; }
 
     public String getOriginalStage() { return originalStage; }
 
@@ -219,6 +225,7 @@ public class Lead {
                 ", contactId=" + contactId +
                 ", addressId=" + addressId +
                 ", uuid='" + uuid + '\'' +
+                ", followUpCount=" + followUpCount +
                 ", createdAt=" + createdAt +
                 ", nextFollowUp=" + nextFollowUp +
                 ", previousFollowUp=" + previousFollowUp +
@@ -229,7 +236,8 @@ public class Lead {
                 ", trackingWebhookUrl='" + trackingWebhookUrl + '\'' +
                 ", leadSource='" + leadSource + '\'' +
                 ", subSource='" + subSource + '\'' +
-                ", externalId='" + externalId + '\'' +
+                ", zcrmExternalId='" + zcrmExternalId + '\'' +
+                ", zcrm_auto_number='" + zcrm_auto_number + '\'' +
                 '}';
     }
 

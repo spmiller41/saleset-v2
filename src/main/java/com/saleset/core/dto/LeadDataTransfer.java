@@ -21,7 +21,8 @@ import com.saleset.core.enums.PhoneLineType;
  * - {@code zip_code}: ZIP or postal code of the address.<p>
  * - {@code lead_source}: Source from which the lead originated.<p>
  * - {@code sub_source}: Sub-source for finer lead tracking.<p>
- * - {@code external_id}: External ID for uniquely identifying leads across systems.<p>
+ * - {@code zcrm_external_id}: External ID for uniquely identifying leads across systems.<p>
+ * - {@code zcrm_auto_number}: Secondary external id for uniquely identifying leads across modules.<p>
  * - {@code stage}: Stage of the current lead <p>
  * - Note: The stage of the lead MUST include 'New', 'Retargeted_No_Show', or 'Retargeted_Rehash'.
  */
@@ -63,8 +64,11 @@ public class LeadDataTransfer {
     @JsonProperty("sub_source")
     private String subSource;
 
-    @JsonProperty("external_id")
-    private String externalId;
+    @JsonProperty("zcrm_external_id")
+    private String zcrmExternalId;
+
+    @JsonProperty("zcrm_auto_number")
+    private String zcrmAutoNumber;
 
     @JsonProperty("stage")
     private String stage;
@@ -169,13 +173,17 @@ public class LeadDataTransfer {
         this.subSource = subSource;
     }
 
-    public String getExternalId() {
-        return externalId;
+    public String getZcrmExternalId() {
+        return zcrmExternalId;
     }
 
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
+    public void setZcrmExternalId(String zcrmExternalId) {
+        this.zcrmExternalId = zcrmExternalId;
     }
+
+    public String getZcrmAutoNumber() { return zcrmAutoNumber; }
+
+    public void setZcrmAutoNumber(String zcrmAutoNumber) { this.zcrmAutoNumber = zcrmAutoNumber; }
 
     public String getStage() {
         return stage;
@@ -197,9 +205,7 @@ public class LeadDataTransfer {
         return secondaryPhoneType;
     }
 
-    public void setSecondaryPhoneType(PhoneLineType secondaryPhoneType) {
-        this.secondaryPhoneType = secondaryPhoneType;
-    }
+    public void setSecondaryPhoneType(PhoneLineType secondaryPhoneType) { this.secondaryPhoneType = secondaryPhoneType; }
 
     @Override
     public String toString() {
@@ -216,8 +222,11 @@ public class LeadDataTransfer {
                 ", zipCode='" + zipCode + '\'' +
                 ", leadSource='" + leadSource + '\'' +
                 ", subSource='" + subSource + '\'' +
-                ", externalId='" + externalId + '\'' +
+                ", zcrmExternalId='" + zcrmExternalId + '\'' +
+                ", zcrmAutoNumber='" + zcrmAutoNumber + '\'' +
                 ", stage='" + stage + '\'' +
+                ", primaryPhoneType=" + primaryPhoneType +
+                ", secondaryPhoneType=" + secondaryPhoneType +
                 '}';
     }
 
