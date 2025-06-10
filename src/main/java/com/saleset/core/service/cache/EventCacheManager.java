@@ -1,7 +1,7 @@
 package com.saleset.core.service.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.saleset.core.dto.EventRequest;
+import com.saleset.core.dto.request.EventRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

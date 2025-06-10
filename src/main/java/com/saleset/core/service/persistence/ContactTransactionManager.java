@@ -1,7 +1,7 @@
 package com.saleset.core.service.persistence;
 
 import com.saleset.core.dao.ContactRepo;
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.entities.Contact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

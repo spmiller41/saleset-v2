@@ -1,6 +1,6 @@
 package com.saleset.integration.twilio.service;
 
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.enums.PhoneLineType;
 import com.saleset.core.util.PhoneNumberNormalizer;
 import org.slf4j.Logger;

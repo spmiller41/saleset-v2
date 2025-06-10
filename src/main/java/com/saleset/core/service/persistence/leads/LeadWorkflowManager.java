@@ -1,6 +1,6 @@
 package com.saleset.core.service.persistence.leads;
 
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;

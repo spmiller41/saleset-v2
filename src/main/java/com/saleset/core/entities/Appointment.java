@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.AppointmentRequest;
+import com.saleset.core.dto.request.AppointmentRequest;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

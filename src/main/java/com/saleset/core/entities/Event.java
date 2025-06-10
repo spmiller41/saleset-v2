@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.EventRequest;
+import com.saleset.core.dto.request.EventRequest;
 import com.saleset.core.enums.EventSource;
 import com.saleset.core.enums.EventType;
 import com.saleset.core.util.TimePeriodIdentifier;

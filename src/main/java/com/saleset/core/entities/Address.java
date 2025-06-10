@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import jakarta.persistence.*;
 
 @Entity

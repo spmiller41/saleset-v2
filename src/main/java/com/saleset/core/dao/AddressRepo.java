@@ -1,6 +1,6 @@
 package com.saleset.core.dao;
 
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;

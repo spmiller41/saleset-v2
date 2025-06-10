@@ -2,7 +2,7 @@ package com.saleset.core.service.persistence;
 
 import com.saleset.core.dao.AppointmentRepo;
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.AppointmentRequest;
+import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Appointment;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

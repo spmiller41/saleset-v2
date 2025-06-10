@@ -1,4 +1,4 @@
-package com.saleset.core.dto;
+package com.saleset.core.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

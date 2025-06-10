@@ -1,7 +1,7 @@
 package com.saleset.core.rest;
 
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.EventRequest;
+import com.saleset.core.dto.request.EventRequest;
 import com.saleset.core.entities.Event;
 import com.saleset.core.enums.EventSource;
 import com.saleset.core.service.persistence.leads.LeadEngagementManager;

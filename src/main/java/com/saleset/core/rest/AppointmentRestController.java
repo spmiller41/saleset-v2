@@ -1,6 +1,6 @@
 package com.saleset.core.rest;
 
-import com.saleset.core.dto.AppointmentRequest;
+import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.service.persistence.AppointmentTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

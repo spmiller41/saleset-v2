@@ -1,6 +1,6 @@
 package com.saleset.core.rest;
 
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

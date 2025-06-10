@@ -1,6 +1,6 @@
 package com.saleset.core.dao;
 
-import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.entities.Contact;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
