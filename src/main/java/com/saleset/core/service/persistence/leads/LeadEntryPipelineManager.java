@@ -1,19 +1,18 @@
-package com.saleset.core.service.transaction.leads;
+package com.saleset.core.service.persistence.leads;
 
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.engine.EngagementEngineImpl;
 import com.saleset.core.service.outreach.task.TaskConfig;
-import com.saleset.core.service.sms.PhoneValidationService;
-import com.saleset.core.service.transaction.AddressTransactionManager;
-import com.saleset.core.service.transaction.ContactTransactionManager;
+import com.saleset.integration.shorten.UrlShortenerImpl;
+import com.saleset.integration.twilio.service.PhoneValidationService;
+import com.saleset.core.service.persistence.AddressTransactionManager;
+import com.saleset.core.service.persistence.ContactTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
-import com.saleset.core.util.RebrandlyUrlGenerator;
-import com.saleset.core.util.TinyUrlGenerator;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +41,8 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
     private final PhoneValidationService phoneValidationService;
     private final QueryUrlGenerator queryUrlGenerator;
     private final LeadEngagementManager leadEngagementManager;
-    private final TinyUrlGenerator tinyUrlGenerator;
-    private final RebrandlyUrlGenerator rebrandlyUrlGenerator;
     private final TaskConfig taskConfig;
+    private final UrlShortenerImpl urlShortener;
 
     @Autowired
     public LeadEntryPipelineManager(EngagementEngineImpl engagementEngine,
@@ -54,17 +52,15 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
                                     PhoneValidationService phoneValidationService,
                                     QueryUrlGenerator queryUrlGenerator,
                                     LeadEngagementManager leadEngagementManager,
-                                    TinyUrlGenerator tinyUrlGenerator,
-                                    RebrandlyUrlGenerator rebrandlyUrlGenerator, TaskConfig taskConfig) {
+                                    TaskConfig taskConfig, UrlShortenerImpl urlShortener) {
         this.leadEngagementManager = leadEngagementManager;
         this.contactTransactionManager = contactTransactionManager;
         this.addressTransactionManager = addressTransactionManager;
         this.leadRepo = leadRepo;
         this.phoneValidationService = phoneValidationService;
         this.queryUrlGenerator = queryUrlGenerator;
-        this.tinyUrlGenerator = tinyUrlGenerator;
-        this.rebrandlyUrlGenerator = rebrandlyUrlGenerator;
         this.taskConfig = taskConfig;
+        this.urlShortener = urlShortener;
     }
 
 
@@ -77,7 +73,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * @param leadData The incoming lead data submission.
      */
     @Transactional
-    public void manageLead(LeadDataTransfer leadData) {
+    public void manageLead(LeadRequest leadData) {
         // 1: Validate and normalize phone numbers
         if (!phoneValidationService.validateAndNormalizePhones(leadData)) return;
 
@@ -105,7 +101,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * @param leadData The incoming lead data.
      * @return An Optional containing the matched contact, or empty if not found.
      */
-    private Optional<Contact> lookupContactAndProcessLeads(LeadDataTransfer leadData) {
+    private Optional<Contact> lookupContactAndProcessLeads(LeadRequest leadData) {
         Optional<Contact> optContact = contactTransactionManager.findByPhone(leadData);
 
         optContact.ifPresent(contact -> {
@@ -141,7 +137,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * @param contact  The contact to associate the lead with.
      * @param address  The address to associate the lead with (nullable).
      */
-    private void insertNewLead(LeadDataTransfer leadData, Contact contact, Address address) {
+    private void insertNewLead(LeadRequest leadData, Contact contact, Address address) {
         LocalDateTime scheduledOutreach = LocalDateTime.now().plusMinutes(taskConfig.getFollowUpWindowMinutes() + 1);
 
         Lead lead = (address != null)
@@ -151,8 +147,8 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
         lead.setBookingPageUrl(queryUrlGenerator.buildBooking(lead, contact, address));
         lead.setTrackingWebhookUrl(queryUrlGenerator.buildTracking(lead));
 
-        String shortUrlTracking = shortenUrl(lead.getTrackingWebhookUrl(), "sms event tracking");
-        String shortUrlBooking = shortenUrl(lead.getBookingPageUrl(), "booking page");
+        String shortUrlTracking = urlShortener.shorten(lead.getTrackingWebhookUrl(), "sms event tracking");
+        String shortUrlBooking = urlShortener.shorten(lead.getBookingPageUrl(), "booking page");
 
         lead.setTrackingWebhookUrl(shortUrlTracking);
         lead.setBookingPageUrl(shortUrlBooking);
@@ -168,7 +164,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * Inserts a new address for an existing contact and immediately creates a lead tied to it.
      * Logs the address insertion before continuing with lead creation.
      */
-    private void processNewAddressExistingContact(LeadDataTransfer leadData, Contact contact) {
+    private void processNewAddressExistingContact(LeadRequest leadData, Contact contact) {
         addressTransactionManager.insertNewAddress(leadData)
                 .ifPresent(newAddress -> {
                     logger.info("Address Insert Successful. Address: {}", newAddress);
@@ -198,7 +194,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * Checks if any lead is on the DNC list or has a matching/null address to trigger re-engagement logic.
      * If conditions match, updates lead engagement and halts further insert logic.
      */
-    private boolean handleDncOrMatchedAddress(LeadDataTransfer leadData, Address address, List<Lead> leadList) {
+    private boolean handleDncOrMatchedAddress(LeadRequest leadData, Address address, List<Lead> leadList) {
         for (Lead lead : leadList) {
             if (LeadStage.DNC.toString().equalsIgnoreCase(lead.getCurrentStage())) {
                 logger.warn("Contact belongs to Lead on DNC. Kicking Lead.");
@@ -254,7 +250,7 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
      * Determines the appropriate insertion path based on whether an address is present or needs to be created.
      * Supports three outcomes: insert with address, insert new address then lead, or insert without address.
      */
-    private void handleLeadInsertions(LeadDataTransfer leadData, Contact contact,
+    private void handleLeadInsertions(LeadRequest leadData, Contact contact,
                                       Address address, boolean payloadHasAddress) {
         if (address != null) {
             insertNewLead(leadData, contact, address);
@@ -262,32 +258,6 @@ public class LeadEntryPipelineManager implements LeadWorkflowManager {
             processNewAddressExistingContact(leadData, contact);
         } else {
             insertNewLead(leadData, contact, null);
-        }
-    }
-
-
-
-
-    /*
-     * Attempts to shorten the given URL using TinyURL first.
-     * Falls back to Rebrandly if TinyURL fails.
-     * If both fail, returns the original URL.
-     *
-     * @param originalUrl The full URL to be shortened.
-     * @param context     A string indicating what the URL is used for (used for logging).
-     * @return A shortened version of the URL, or the original if shortening fails.
-     */
-    private String shortenUrl(String originalUrl, String context) {
-        try {
-            return tinyUrlGenerator.createTinyUrl(originalUrl);
-        } catch (Exception ex) {
-            logger.warn("TinyURL failed for {}: {}", context, ex.getMessage());
-            try {
-                return rebrandlyUrlGenerator.createRebrandlyURL(originalUrl);
-            } catch (Exception exc) {
-                logger.error("Rebrandly failed for {}: {}", context, exc.getMessage());
-                return originalUrl;
-            }
         }
     }
 

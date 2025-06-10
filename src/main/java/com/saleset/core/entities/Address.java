@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import jakarta.persistence.*;
 
 @Entity
@@ -26,7 +26,7 @@ public class Address {
 
     public Address() {}
 
-    public Address(LeadDataTransfer leadData) {
+    public Address(LeadRequest leadData) {
         setStreet(leadData.getStreet());
         setCity(leadData.getCity());
         setState(leadData.getState());

@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.AppointmentDataTransfer;
+import com.saleset.core.dto.AppointmentRequest;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -35,7 +35,7 @@ public class Appointment {
 
     public Appointment() {}
 
-    public Appointment(AppointmentDataTransfer appointmentData, Lead lead) {
+    public Appointment(AppointmentRequest appointmentData, Lead lead) {
         setStartDateTime(appointmentData.getStartDateTime());
         setEndDateTime(appointmentData.getEndDateTime());
         setBookingSource(appointmentData.getBookingSource());

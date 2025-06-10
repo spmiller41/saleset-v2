@@ -2,7 +2,7 @@ package com.saleset.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EventDataTransfer {
+public class EventRequest {
 
     @JsonProperty("event")
     private String event;
@@ -28,7 +28,7 @@ public class EventDataTransfer {
 
     @Override
     public String toString() {
-        return "EventDataTransfer{" +
+        return "EventRequest{" +
                 "event='" + event + '\'' +
                 ", leadUUID='" + leadUUID + '\'' +
                 '}';

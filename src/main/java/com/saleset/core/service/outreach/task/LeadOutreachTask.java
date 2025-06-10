@@ -2,7 +2,7 @@ package com.saleset.core.service.outreach.task;
 
 import com.saleset.core.entities.Lead;
 import com.saleset.core.service.outreach.Dispatcher;
-import com.saleset.core.service.transaction.leads.LeadEngagementManager;
+import com.saleset.core.service.persistence.leads.LeadEngagementManager;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

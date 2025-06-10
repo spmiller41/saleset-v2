@@ -1,9 +1,9 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.persistence;
 
 import com.saleset.core.dao.AddressRepo;
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Address;
-import com.saleset.core.service.transaction.leads.LeadWorkflowManager;
+import com.saleset.core.service.persistence.leads.LeadWorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class AddressTransactionManager implements LeadWorkflowManager {
         this.addressRepo = addressRepo;
     }
 
-    public Address resolveOrInsert(LeadDataTransfer leadData) {
+    public Address resolveOrInsert(LeadRequest leadData) {
         if (!leadAddressIsValid(leadData)) return null;
 
         return addressRepo.findAddressByLeadDataMatch(leadData)
@@ -33,12 +33,12 @@ public class AddressTransactionManager implements LeadWorkflowManager {
                 });
     }
 
-    public Optional<Address> findAddressMatch(LeadDataTransfer leadData) {
+    public Optional<Address> findAddressMatch(LeadRequest leadData) {
         if (!leadAddressIsValid(leadData)) return Optional.empty();
         return addressRepo.findAddressByLeadDataMatch(leadData);
     }
 
-    public Optional<Address> insertNewAddress(LeadDataTransfer leadData) {
+    public Optional<Address> insertNewAddress(LeadRequest leadData) {
         if (!leadAddressIsValid(leadData)) return Optional.empty();
 
         Optional<Address> opt = addressRepo.safeInsert(new Address(leadData));

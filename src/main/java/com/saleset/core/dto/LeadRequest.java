@@ -26,7 +26,7 @@ import com.saleset.core.enums.PhoneLineType;
  * - {@code stage}: Stage of the current lead <p>
  * - Note: The stage of the lead MUST include 'New', 'Retargeted_No_Show', or 'Retargeted_Rehash'.
  */
-public class LeadDataTransfer {
+public class LeadRequest {
 
     @JsonProperty("first_name")
     private String firstName;
@@ -209,7 +209,7 @@ public class LeadDataTransfer {
 
     @Override
     public String toString() {
-        return "LeadDataTransfer{" +
+        return "LeadRequest{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +

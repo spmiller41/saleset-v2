@@ -1,8 +1,8 @@
-package com.saleset.core.service.transaction.leads;
+package com.saleset.core.service.persistence.leads;
 
 import com.saleset.core.dao.EventRepo;
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
@@ -91,7 +91,7 @@ public class LeadEngagementManager implements LeadWorkflowManager {
      * @param lead The existing lead to resume.
      */
     @Transactional
-    public void updateEngagementOnLeadResumption(LeadDataTransfer leadData, Address address, Lead lead) {
+    public void updateEngagementOnLeadResumption(LeadRequest leadData, Address address, Lead lead) {
         if (isExistingAddress(address, leadData) && isValidForUpdate(lead)) {
             List<Event> eventList = eventRepo.findByLead(lead);
             updateLeadEngagement(lead, eventList, "Lead reentry - Contains Address. Update successful");

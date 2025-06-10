@@ -1,11 +1,11 @@
 package com.saleset.core.rest;
 
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.EventDataTransfer;
+import com.saleset.core.dto.EventRequest;
 import com.saleset.core.entities.Event;
 import com.saleset.core.enums.EventSource;
-import com.saleset.core.service.transaction.leads.LeadEngagementManager;
-import com.saleset.core.service.transaction.EventTransactionManager;
+import com.saleset.core.service.persistence.leads.LeadEngagementManager;
+import com.saleset.core.service.persistence.EventTransactionManager;
 import com.saleset.core.util.QueryUrlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +33,7 @@ public class EventsRestController {
     private LeadRepo leadRepo;
 
     @PostMapping("/email_event")
-    public void emailEvent(@RequestBody List<EventDataTransfer> eventDataList) {
+    public void emailEvent(@RequestBody List<EventRequest> eventDataList) {
         eventDataList.forEach(eventData -> {
             Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData, EventSource.EMAIL);
         });
@@ -42,7 +42,7 @@ public class EventsRestController {
     // Anonymous endpoint name for click tracking - to be masked in booking link
     @GetMapping("/go")
     public ResponseEntity<Void> smsEvent(@RequestParam("UUID") String leadUUID) {
-        EventDataTransfer eventData = new EventDataTransfer();
+        EventRequest eventData = new EventRequest();
         eventData.setEvent("click");
         eventData.setLeadUUID(leadUUID);
         System.out.println(eventData);

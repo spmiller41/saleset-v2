@@ -1,7 +1,7 @@
 package com.saleset.core.rest;
 
-import com.saleset.core.dto.LeadDataTransfer;
-import com.saleset.core.service.transaction.leads.LeadEntryPipelineManager;
+import com.saleset.core.dto.LeadRequest;
+import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +20,7 @@ public class LeadsRestController {
     }
 
     @PostMapping("/create_lead")
-    public void createLead(@RequestBody LeadDataTransfer leadData) {
+    public void createLead(@RequestBody LeadRequest leadData) {
         System.out.println(leadData);
         transactionManager.manageLead(leadData);
     }

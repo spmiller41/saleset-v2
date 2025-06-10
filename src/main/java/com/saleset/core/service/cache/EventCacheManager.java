@@ -1,7 +1,7 @@
 package com.saleset.core.service.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.saleset.core.dto.EventDataTransfer;
+import com.saleset.core.dto.EventRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class EventCacheManager {
      * @return {@code true} if the event was newly cached and should be persisted,
      *         {@code false} if the event was already cached and should not be persisted.
      */
-    public boolean cacheEvent(EventDataTransfer eventData) {
+    public boolean cacheEvent(EventRequest eventData) {
         String leadUUID = eventData.getLeadUUID();
         String eventType = eventData.getEvent();
 

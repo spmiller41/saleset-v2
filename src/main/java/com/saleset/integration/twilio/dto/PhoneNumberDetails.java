@@ -1,4 +1,4 @@
-package com.saleset.core.service.sms;
+package com.saleset.integration.twilio.dto;
 
 import com.saleset.core.enums.PhoneLineType;
 

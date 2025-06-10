@@ -1,6 +1,7 @@
-package com.saleset.core.service.sms;
+package com.saleset.integration.twilio.service;
 
 import com.saleset.core.enums.PhoneLineType;
+import com.saleset.integration.twilio.dto.PhoneNumberDetails;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.lookups.v2.PhoneNumber;
@@ -26,9 +27,9 @@ public class TwilioManager {
                 .create();
     }
 
-    /*
+    /**
      * Looks up a phone number using the Twilio API and categorizes it as either mobile or landline based on its line type.
-     *
+     * <p>
      * This method initializes Twilio with the account credentials, fetches the phone number details including
      * line type intelligence, and then categorizes the line type as 'mobile' or 'landline'. If the phone number is not
      * valid or if the Twilio API returns a 404 error, the method returns null.

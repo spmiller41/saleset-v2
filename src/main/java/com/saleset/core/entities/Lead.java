@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -71,7 +71,7 @@ public class Lead {
         return id;
     }
 
-    public Lead(LeadDataTransfer leadData, Contact contact, Address address, LocalDateTime scheduledOutreach) {
+    public Lead(LeadRequest leadData, Contact contact, Address address, LocalDateTime scheduledOutreach) {
         setContactId(contact.getId());
         setAddressId(address.getId());
         setUuid(UUID.randomUUID().toString());
@@ -88,7 +88,7 @@ public class Lead {
         setZcrmAutoNumber(leadData.getZcrmAutoNumber());
     }
 
-    public Lead(LeadDataTransfer leadData, Contact contact, LocalDateTime scheduledOutreach) {
+    public Lead(LeadRequest leadData, Contact contact, LocalDateTime scheduledOutreach) {
         setContactId(contact.getId());
         setUuid(UUID.randomUUID().toString());
         setFollowUpCount(0);

@@ -5,7 +5,7 @@ import com.saleset.core.dao.ContactRepo;
 import com.saleset.core.dao.MarketZipDataRepo;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
-import com.saleset.core.service.sms.TwilioManager;
+import com.saleset.integration.twilio.service.TwilioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

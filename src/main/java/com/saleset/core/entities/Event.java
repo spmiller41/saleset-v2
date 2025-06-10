@@ -1,6 +1,6 @@
 package com.saleset.core.entities;
 
-import com.saleset.core.dto.EventDataTransfer;
+import com.saleset.core.dto.EventRequest;
 import com.saleset.core.enums.EventSource;
 import com.saleset.core.enums.EventType;
 import com.saleset.core.util.TimePeriodIdentifier;
@@ -40,7 +40,7 @@ public class Event {
 
     public Event() {}
 
-    public Event(Lead lead, EventDataTransfer eventData, EventSource source) {
+    public Event(Lead lead, EventRequest eventData, EventSource source) {
 
         if (eventData.getEvent().equalsIgnoreCase(EventType.OPEN.toString())) {
             setEventType(EventType.OPEN.toString());

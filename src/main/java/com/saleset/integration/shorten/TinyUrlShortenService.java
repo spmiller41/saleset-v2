@@ -1,16 +1,16 @@
-package com.saleset.core.util;
+package com.saleset.integration.shorten;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-public class TinyUrlGenerator {
+@Service
+public class TinyUrlShortenService {
 
     @Value("${tinyurl.create.token}")
     private String tinyurlCreateToken;
@@ -23,11 +23,11 @@ public class TinyUrlGenerator {
 
     private final RestTemplate restTemplate;
 
-    public TinyUrlGenerator(RestTemplate restTemplate) {
+    public TinyUrlShortenService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public String createTinyUrl(String longUrl) {
+    public String create(String longUrl) {
         // Create the request body
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("url", longUrl);

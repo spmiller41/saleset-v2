@@ -6,7 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 
-public class AppointmentDataTransfer {
+public class AppointmentRequest {
 
     @JsonProperty("startsAt")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -55,7 +55,7 @@ public class AppointmentDataTransfer {
 
     @Override
     public String toString() {
-        return "AppointmentDataTransfer{" +
+        return "AppointmentRequest{" +
                 "startDateTime=" + startDateTime +
                 ", endDateTime=" + endDateTime +
                 ", appointmentType='" + appointmentType + '\'' +

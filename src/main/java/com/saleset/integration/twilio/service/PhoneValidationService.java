@@ -1,6 +1,6 @@
-package com.saleset.core.service.sms;
+package com.saleset.integration.twilio.service;
 
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.enums.PhoneLineType;
 import com.saleset.core.util.PhoneNumberNormalizer;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class PhoneValidationService {
      * @param leadData The lead data containing phone numbers.
      * @return true if at least one phone number is valid and normalized, false otherwise.
      */
-    public boolean validateAndNormalizePhones(LeadDataTransfer leadData) {
+    public boolean validateAndNormalizePhones(LeadRequest leadData) {
         if (leadData.getPrimaryPhone() == null && leadData.getSecondaryPhone() == null) {
             logger.warn("Lead kicked due to no phone number. Lead: {}", leadData);
             return false;
@@ -53,7 +53,7 @@ public class PhoneValidationService {
 
 
 
-    private void swapSecondaryToPrimaryIfNeeded(LeadDataTransfer leadData) {
+    private void swapSecondaryToPrimaryIfNeeded(LeadRequest leadData) {
         if (leadData.getPrimaryPhone() == null && leadData.getSecondaryPhone() != null) {
             leadData.setPrimaryPhone(leadData.getSecondaryPhone());
             leadData.setSecondaryPhone(null);
@@ -63,7 +63,7 @@ public class PhoneValidationService {
 
 
 
-    private void normalizeAndSetPhoneTypes(LeadDataTransfer leadData) {
+    private void normalizeAndSetPhoneTypes(LeadRequest leadData) {
         Optional<String> optPrimary = PhoneNumberNormalizer.normalizeToE164(leadData.getPrimaryPhone());
         Optional<String> optSecondary = PhoneNumberNormalizer.normalizeToE164(leadData.getSecondaryPhone());
 
@@ -85,7 +85,7 @@ public class PhoneValidationService {
 
 
 
-    private boolean hasValidPhoneType(LeadDataTransfer leadData) {
+    private boolean hasValidPhoneType(LeadRequest leadData) {
         return leadData.getPrimaryPhoneType() != PhoneLineType.INVALID ||
                 (leadData.getSecondaryPhoneType() != PhoneLineType.INVALID && leadData.getSecondaryPhoneType() != null);
     }

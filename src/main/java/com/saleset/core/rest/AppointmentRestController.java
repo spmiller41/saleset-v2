@@ -1,7 +1,7 @@
 package com.saleset.core.rest;
 
-import com.saleset.core.dto.AppointmentDataTransfer;
-import com.saleset.core.service.transaction.AppointmentTransactionManager;
+import com.saleset.core.dto.AppointmentRequest;
+import com.saleset.core.service.persistence.AppointmentTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +16,7 @@ public class AppointmentRestController {
     private AppointmentTransactionManager appointmentTransactionManager;
 
     @PostMapping("/create_appointment")
-    public void createAppointment(@RequestBody AppointmentDataTransfer appointmentData) {
+    public void createAppointment(@RequestBody AppointmentRequest appointmentData) {
         appointmentTransactionManager.createAppointmentForLeadUuid(appointmentData);
     }
 

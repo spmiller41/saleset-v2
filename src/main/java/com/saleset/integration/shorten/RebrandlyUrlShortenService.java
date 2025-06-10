@@ -1,4 +1,4 @@
-package com.saleset.core.util;
+package com.saleset.integration.shorten;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,14 +6,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-public class RebrandlyUrlGenerator {
+@Service
+public class RebrandlyUrlShortenService {
 
     @Value("${rebrandly.workspace.id}")
     private String rebrandlyWorkspaceId;
@@ -27,11 +27,11 @@ public class RebrandlyUrlGenerator {
     private final RestTemplate restTemplate;
 
     @Autowired
-    public RebrandlyUrlGenerator(RestTemplate restTemplate) {
+    public RebrandlyUrlShortenService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public String createRebrandlyURL(String longUrl) {
+    public String create(String longUrl) {
         String endpoint = "https://api.rebrandly.com/v1/links";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

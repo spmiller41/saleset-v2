@@ -1,8 +1,8 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.persistence;
 
 import com.saleset.core.dao.AppointmentRepo;
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.AppointmentDataTransfer;
+import com.saleset.core.dto.AppointmentRequest;
 import com.saleset.core.entities.Appointment;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class AppointmentTransactionManager {
     }
 
     @Transactional
-    public void createAppointmentForLeadUuid(AppointmentDataTransfer appointmentData) {
+    public void createAppointmentForLeadUuid(AppointmentRequest appointmentData) {
         leadRepo.findLeadByUUID(appointmentData.getLeadBookingUUID()).ifPresent(lead -> {
             Appointment appointment = new Appointment(appointmentData, lead);
             appointmentRepo.safeInsert(appointment).ifPresent(newAppointment -> {

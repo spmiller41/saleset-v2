@@ -1,15 +1,13 @@
-package com.saleset.core.service.transaction.leads;
+package com.saleset.core.service.persistence.leads;
 
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 
-import java.util.List;
-
 public interface LeadWorkflowManager {
 
-    default boolean isExistingAddress(Address address, LeadDataTransfer leadData) {
+    default boolean isExistingAddress(Address address, LeadRequest leadData) {
         boolean addressMatch = address.getStreet().equalsIgnoreCase(leadData.getStreet())
                 && address.getZipCode().equalsIgnoreCase(leadData.getZipCode());
         if (addressMatch) return true;
@@ -29,7 +27,7 @@ public interface LeadWorkflowManager {
         );
     }
 
-    default boolean leadAddressIsValid(LeadDataTransfer leadData) {
+    default boolean leadAddressIsValid(LeadRequest leadData) {
         boolean isValid = leadData.getStreet() != null && leadData.getZipCode() != null;
         if (isValid) return true;
 

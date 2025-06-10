@@ -1,8 +1,8 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.persistence;
 
 import com.saleset.core.dao.EventRepo;
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.EventDataTransfer;
+import com.saleset.core.dto.EventRequest;
 import com.saleset.core.entities.Event;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.EventSource;
@@ -43,7 +43,7 @@ public class EventTransactionManager {
      * @param eventData The event data transfer object containing event details.
      * @return An {@code Optional} containing the inserted event if successful, otherwise empty.
      */
-    public Optional<Event> insertEventHandler(EventDataTransfer eventData, EventSource eventSource) {
+    public Optional<Event> insertEventHandler(EventRequest eventData, EventSource eventSource) {
         boolean isInsertable = cacheManager.cacheEvent(eventData);
         if (!isInsertable) return Optional.empty();
 

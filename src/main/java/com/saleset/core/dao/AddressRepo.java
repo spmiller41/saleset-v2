@@ -1,6 +1,6 @@
 package com.saleset.core.dao;
 
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;
@@ -73,7 +73,7 @@ public class AddressRepo {
 
     // Remove Transactional and use at service layer after testing.
     @Transactional
-    public Optional<Address> findAddressByLeadDataMatch(LeadDataTransfer leadData) {
+    public Optional<Address> findAddressByLeadDataMatch(LeadRequest leadData) {
         String query = "SELECT a FROM Address a WHERE " +
                 "(a.street = :street AND a.zipCode = :zipCode) OR " +
                 "(a.street = :street AND a.city = :city AND a.state = :state)";

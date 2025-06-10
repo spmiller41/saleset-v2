@@ -1,7 +1,7 @@
-package com.saleset.core.service.transaction;
+package com.saleset.core.service.persistence;
 
 import com.saleset.core.dao.ContactRepo;
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Contact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +21,11 @@ public class ContactTransactionManager {
         this.contactRepo = contactRepo;
     }
 
-    public Optional<Contact> findByPhone(LeadDataTransfer leadData) {
+    public Optional<Contact> findByPhone(LeadRequest leadData) {
         return contactRepo.findContactByPhone(leadData);
     }
 
-    public Contact insertContact(LeadDataTransfer leadData) {
+    public Contact insertContact(LeadRequest leadData) {
         Optional<Contact> optContact = contactRepo.safeInsert(new Contact(leadData));
         if (optContact.isEmpty()) {
             logger.warn("Failed to insert contact for lead data: {}", leadData);

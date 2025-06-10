@@ -1,8 +1,7 @@
 package com.saleset.core.dao;
 
-import com.saleset.core.dto.LeadDataTransfer;
+import com.saleset.core.dto.LeadRequest;
 import com.saleset.core.entities.Contact;
-import com.saleset.core.entities.Lead;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
@@ -76,7 +75,7 @@ public class ContactRepo {
      */
     // Remove Transactional and use at service layer after testing.
     @Transactional
-    public Optional<Contact> findContactByPhone(LeadDataTransfer leadData) {
+    public Optional<Contact> findContactByPhone(LeadRequest leadData) {
         try {
             String query = "SELECT c FROM Contact c WHERE c.primaryPhone = :primaryPhone " +
                     "OR c.secondaryPhone = :primaryPhone " +
