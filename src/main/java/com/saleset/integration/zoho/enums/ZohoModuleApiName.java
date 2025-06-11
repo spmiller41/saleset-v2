@@ -1,4 +1,4 @@
-package com.saleset.integration.zoho;
+package com.saleset.integration.zoho.enums;
 
 public enum ZohoModuleApiName {
 

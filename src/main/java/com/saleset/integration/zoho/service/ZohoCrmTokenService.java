@@ -1,6 +1,7 @@
-package com.saleset.integration.zoho;
+package com.saleset.integration.zoho.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.dto.response.ZohoTokenResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
