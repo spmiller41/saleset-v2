@@ -14,7 +14,6 @@ public class SalesetApplication {
 		SpringApplication.run(SalesetApplication.class, args);
 	}
 
-
 	/*
 	@Bean
 	public CommandLineRunner demo() {
