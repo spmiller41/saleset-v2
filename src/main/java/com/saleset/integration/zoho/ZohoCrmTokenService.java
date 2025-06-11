@@ -34,9 +34,9 @@ import java.util.Map;
  * 5. If the token is valid, the stored access token is returned.
  */
 @Service
-public class TokenService {
+public class ZohoCrmTokenService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZohoCrmTokenService.class);
 
     @Value("${zoho.token.base.url}")
     private String baseUrl;
@@ -60,7 +60,7 @@ public class TokenService {
     private final Map<String, TokenDetails> tokenStore = new HashMap<>();
 
     @Autowired
-    public TokenService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public ZohoCrmTokenService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
     }
