@@ -5,6 +5,7 @@ import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
+import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,13 +49,7 @@ public class ZohoLeadsService {
      */
     public void updateLeadAppointment(Appointment appointment, Lead lead) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
-
-        JSONObject updatedFields = new JSONObject();
-        updatedFields.put(ZohoLeadFields.APPOINTMENT, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
-        updatedFields.put(ZohoLeadFields.OWNER, zcrmSalesManagerId);
-
-        JSONObject requestBody = new JSONObject();
-        requestBody.put(ZohoLeadFields.DATA, new JSONArray(updatedFields));
+        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, zcrmSalesManagerId);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
@@ -76,23 +71,26 @@ public class ZohoLeadsService {
 
     public String createLead(AppointmentRequest appointmentData) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
+        JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(appointmentData, zcrmSalesManagerId, ambassadorName);
 
-        JSONObject createFields = new JSONObject();
-        createFields.put(ZohoLeadFields.OWNER, zcrmSalesManagerId);
-        createFields.put(ZohoLeadFields.APPOINTMENT, ZohoUtils.formatDateTime(appointmentData.getStartDateTime()));
-        createFields.put(ZohoLeadFields.PRODUCT1, new JSONArray().put(ZohoLeadFields.PRODUCT1_DEFAULT_VALUE));
-        createFields.put(ZohoLeadFields.DESCRIPTION, ZohoUtils.buildDescription(appointmentData));
-        createFields.put(ZohoLeadFields.LEAD_SOURCE, ZohoLeadFields.LEAD_SOURCE_DEFAULT_VALUE);
-        createFields.put(ZohoLeadFields.SUB_SOURCE, ZohoLeadFields.SUB_SOURCE_DEFAULT_VALUE);
-        createFields.put(ZohoLeadFields.AMBASSADOR_PROMOTER, ambassadorName);
-        createFields.put(ZohoLeadFields.FIRST_NAME, appointmentData.getFirstName());
-        createFields.put(ZohoLeadFields.LAST_NAME, appointmentData.getLastName());
-        createFields.put(ZohoLeadFields.EMAIL, appointmentData.getEmail());
-        createFields.put(ZohoLeadFields.PHONE, appointmentData.getPhone());
-        createFields.put(ZohoLeadFields.STREET, appointmentData.getStreet());
-        createFields.put(ZohoLeadFields.CITY, appointmentData.getCity());
-        createFields.put(ZohoLeadFields.STATE, appointmentData.getState());
-        createFields.put(ZohoLeadFields.ZIP_CODE, appointmentData.getZip());
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl),
+                    HttpMethod.POST,
+                    new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
+                    String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Lead created with Appointment: {}", appointmentData);
+            } else {
+                logger.warn("Unexpected status creating Lead with Appointment: {} -- {}", appointmentData, response.getStatusCode());
+                logger.debug("Response Body: {}", response.getBody());
+            }
+
+            logger.info("Response: {}", response);
+        } catch (RestClientException ex) {
+            logger.warn("Lead unable to be created with Appointment: {} -- Message: {}", appointmentData, ex.getMessage());
+        }
 
         return "";
     }

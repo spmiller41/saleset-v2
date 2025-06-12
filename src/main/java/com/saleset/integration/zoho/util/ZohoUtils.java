@@ -27,6 +27,10 @@ public final class ZohoUtils {
         return String.format("%s%s/%s", zcrmApiBaseUrl, ZohoModuleApiName.LEADS, zcrmLeadId);
     }
 
+    public static String buildEndpoint(String zcrmApiBaseUrl) {
+        return String.format("%s%s", zcrmApiBaseUrl, ZohoModuleApiName.LEADS);
+    }
+
     public static String buildDescription(AppointmentRequest appointmentData) {
         String formattedAppointment =
                 appointmentData.getStartDateTime().format(DateTimeFormatter.ofPattern("EEEE, M/d/yy 'at' h:mma"));
