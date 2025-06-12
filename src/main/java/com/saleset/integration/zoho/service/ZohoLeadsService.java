@@ -5,6 +5,7 @@ import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
+import com.saleset.integration.zoho.util.ZohoUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;

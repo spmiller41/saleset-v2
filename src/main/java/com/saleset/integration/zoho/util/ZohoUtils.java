@@ -1,4 +1,4 @@
-package com.saleset.integration.zoho.service;
+package com.saleset.integration.zoho.util;
 
 import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
