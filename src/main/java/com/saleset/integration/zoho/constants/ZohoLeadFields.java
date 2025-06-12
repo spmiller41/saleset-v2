@@ -5,6 +5,7 @@ public class ZohoLeadFields {
     // Most Zoho CRM requests require nesting inside a 'data' array
     public static final String DATA = "data";
 
+    // Fields
     public static final String APPOINTMENT = "Appointment";
     public static final String OWNER = "Owner";
     public static final String PRODUCT1 = "Product1";
@@ -21,5 +22,10 @@ public class ZohoLeadFields {
     public static final String CITY = "City";
     public static final String STATE = "State";
     public static final String ZIP_CODE = "Zip_Code";
+
+    // Default values
+    public static final String PRODUCT1_DEFAULT_VALUE = "Residential Solar";
+    public static final String LEAD_SOURCE_DEFAULT_VALUE = "Internet PPC";
+    public static final String SUB_SOURCE_DEFAULT_VALUE = "Call Center";
 
 }

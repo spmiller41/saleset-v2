@@ -1,5 +1,6 @@
 package com.saleset.integration.zoho.service;
 
+import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,12 @@ public final class ZohoUtils {
 
     public static String buildEndpoint(String zcrmApiBaseUrl, String zcrmLeadId) {
         return String.format("%s%s/%s", zcrmApiBaseUrl, ZohoModuleApiName.LEADS, zcrmLeadId);
+    }
+
+    public static String buildDescription(AppointmentRequest appointmentData) {
+        String formattedAppointment =
+                appointmentData.getStartDateTime().format(DateTimeFormatter.ofPattern("EEEE, M/d/yy 'at' h:mma"));
+        return String.format("%s for %s", appointmentData.getAppointmentType(), formattedAppointment);
     }
 
 }

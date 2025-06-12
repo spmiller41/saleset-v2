@@ -25,9 +25,32 @@ public class AppointmentRequest {
     @JsonProperty("bookingReference")
     private String bookingReference;
 
-    // Note: May want to make this non-null when ready.
     @JsonProperty("bookingSource")
     private String bookingSource;
+
+    @JsonProperty("firstName")
+    private String firstName;
+
+    @JsonProperty("lastName")
+    private String lastName;
+
+    @JsonProperty("email")
+    private String email;
+
+    @JsonProperty("phone")
+    private String phone;
+
+    @JsonProperty("street")
+    private String street;
+
+    @JsonProperty("city")
+    private String city;
+
+    @JsonProperty("state")
+    private String state;
+
+    @JsonProperty("zip")
+    private String zip;
 
     public LocalDateTime getStartDateTime() { return startDateTime; }
 
@@ -53,6 +76,38 @@ public class AppointmentRequest {
 
     public void setBookingSource(String bookingSource) { this.bookingSource = bookingSource; }
 
+    public String getFirstName() { return firstName; }
+
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getEmail() { return email; }
+
+    public void setEmail(String email) { this.email = email; }
+
+    public String getPhone() { return phone; }
+
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getStreet() { return street; }
+
+    public void setStreet(String street) { this.street = street; }
+
+    public String getCity() { return city; }
+
+    public void setCity(String city) { this.city = city; }
+
+    public String getState() { return state; }
+
+    public void setState(String state) { this.state = state; }
+
+    public String getZip() { return zip; }
+
+    public void setZip(String zip) { this.zip = zip; }
+
     @Override
     public String toString() {
         return "AppointmentRequest{" +
@@ -62,6 +117,14 @@ public class AppointmentRequest {
                 ", leadBookingUUID='" + leadBookingUUID + '\'' +
                 ", bookingReference='" + bookingReference + '\'' +
                 ", bookingSource='" + bookingSource + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", street='" + street + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", zip='" + zip + '\'' +
                 '}';
     }
 
