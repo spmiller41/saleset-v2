@@ -4,6 +4,7 @@ import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
+import com.saleset.integration.zoho.dto.response.ZohoLeadResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -69,30 +71,49 @@ public class ZohoLeadsService {
         }
     }
 
-    public String createLead(AppointmentRequest appointmentData) {
+    public ZohoLeadResponse createLead(AppointmentRequest appointmentData) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
-        JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(appointmentData, zcrmSalesManagerId, ambassadorName);
+        JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(
+                appointmentData, zcrmSalesManagerId, ambassadorName
+        );
 
+        String responseBody;
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     ZohoUtils.buildEndpoint(zcrmApiBaseUrl),
                     HttpMethod.POST,
                     new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
-                    String.class);
+                    String.class
+            );
+
+            responseBody = response.getBody();
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("Lead created with Appointment: {}", appointmentData);
             } else {
-                logger.warn("Unexpected status creating Lead with Appointment: {} -- {}", appointmentData, response.getStatusCode());
-                logger.debug("Response Body: {}", response.getBody());
+                logger.warn(
+                        "Unexpected status creating Lead with Appointment: {} -- {}",
+                        appointmentData, response.getStatusCode()
+                );
+                logger.debug("Response Body: {}", responseBody);
             }
 
             logger.info("Response: {}", response);
+        } catch (HttpClientErrorException e) {
+            responseBody = e.getResponseBodyAsString();
+            logger.warn(
+                    "Lead unable to be created with Appointment: {} -- Message: {}",
+                    appointmentData, e.getMessage()
+            );
         } catch (RestClientException ex) {
-            logger.warn("Lead unable to be created with Appointment: {} -- Message: {}", appointmentData, ex.getMessage());
+            responseBody = "{}";
+            logger.warn(
+                    "Lead unable to be created with Appointment: {} -- Message: {}",
+                    appointmentData, ex.getMessage()
+            );
         }
 
-        return "";
+        return new ZohoLeadResponse(responseBody);
     }
 
 
