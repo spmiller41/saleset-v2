@@ -1,5 +1,6 @@
 package com.saleset;
 
+import com.saleset.core.dto.request.AppointmentRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,6 +21,5 @@ public class SalesetApplication {
 		return (args) -> {};
 	}
 	*/
-
 
 }
