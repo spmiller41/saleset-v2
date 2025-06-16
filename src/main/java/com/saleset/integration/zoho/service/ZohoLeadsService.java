@@ -3,12 +3,11 @@ package com.saleset.integration.zoho.service;
 import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
-import com.saleset.integration.zoho.constants.ZohoLeadFields;
-import com.saleset.integration.zoho.dto.response.ZohoLeadResponse;
+import com.saleset.integration.zoho.dto.response.ZohoLeadCreateUpdateResponse;
+import com.saleset.integration.zoho.dto.response.ZohoLeadFetchResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
 
 @Service
 public class ZohoLeadsService {
@@ -42,6 +43,9 @@ public class ZohoLeadsService {
         this.restTemplate = restTemplate;
         this.tokenService = tokenService;
     }
+
+
+
 
     /**
      * Updates the specified Lead record in Zoho CRM by setting its appointment date and owner.
@@ -71,7 +75,10 @@ public class ZohoLeadsService {
         }
     }
 
-    public ZohoLeadResponse createLead(AppointmentRequest appointmentData) {
+
+
+
+    public ZohoLeadCreateUpdateResponse createLead(AppointmentRequest appointmentData) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(
                 appointmentData, zcrmSalesManagerId, ambassadorName
@@ -102,19 +109,47 @@ public class ZohoLeadsService {
         } catch (HttpClientErrorException e) {
             responseBody = e.getResponseBodyAsString();
             logger.warn(
-                    "Lead unable to be created with Appointment: {} -- Message: {}",
+                    "HttpClient - Lead unable to be created with Appointment: {} -- Message: {}",
                     appointmentData, e.getMessage()
             );
         } catch (RestClientException ex) {
             responseBody = "{}";
             logger.warn(
-                    "Lead unable to be created with Appointment: {} -- Message: {}",
+                    "RestClient - Lead unable to be created with Appointment: {} -- Message: {}",
                     appointmentData, ex.getMessage()
             );
         }
 
-        return new ZohoLeadResponse(responseBody);
+        return new ZohoLeadCreateUpdateResponse(responseBody);
     }
 
+
+
+
+    public Optional<ZohoLeadFetchResponse> fetchLead(String zcrmLeadId) {
+        String token = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
+        String url   = ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId);
+
+        try {
+            ResponseEntity<String> resp = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(ZohoUtils.buildHeaders(token)),
+                    String.class
+            );
+
+            String body = resp.getBody();
+            if (!resp.getStatusCode().is2xxSuccessful()) {
+                logger.warn("Unexpected status fetching Lead {} → {}. Body: {}",
+                        zcrmLeadId, resp.getStatusCode(), body);
+                return Optional.empty();
+            }
+
+            return Optional.of(new ZohoLeadFetchResponse(body));
+        } catch (RestClientException e) {
+            logger.warn("Error fetching Lead {} from Zoho CRM: {}", zcrmLeadId, e.getMessage());
+            return Optional.empty();
+        }
+    }
 
 }
