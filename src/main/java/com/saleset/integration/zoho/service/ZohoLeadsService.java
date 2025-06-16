@@ -79,6 +79,36 @@ public class ZohoLeadsService {
 
 
     /**
+     * Updates the specified Lead record in Zoho CRM by setting its appointment date and owner.
+     *
+     * @param appointment the Appointment containing the start date/time to set on the lead
+     */
+    public void updateLeadAppointment(Appointment appointment, String zcrmLeadId) {
+        String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
+        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, zcrmSalesManagerId);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId),
+                    HttpMethod.PUT,
+                    new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
+                    String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Appointment added to Lead ID: {} -- Status Code: {}", zcrmLeadId, response.getStatusCode());
+            } else {
+                logger.warn("Unexpected status updating Lead {} -- {}", zcrmLeadId, response.getStatusCode());
+                logger.debug("Response body: {}", response.getBody());
+            }
+        } catch (RestClientException ex) {
+            logger.error("Appointment unable to be added to Lead: {} -- Message: {}", zcrmLeadId, ex.getMessage());
+        }
+    }
+
+
+
+
+    /**
      * Creates a new Lead in Zoho CRM using the provided appointment data.
      * <p>
      * Constructs the JSON payload, sends a POST request to the Zoho Leads endpoint,
