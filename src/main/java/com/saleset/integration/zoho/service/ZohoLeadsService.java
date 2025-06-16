@@ -78,6 +78,17 @@ public class ZohoLeadsService {
 
 
 
+    /**
+     * Creates a new Lead in Zoho CRM using the provided appointment data.
+     * <p>
+     * Constructs the JSON payload, sends a POST request to the Zoho Leads endpoint,
+     * and wraps the raw JSON response in a ZohoLeadCreateUpdateResponse for further inspection.
+     * Logs an INFO on successful (2xx) creation, WARN on unexpected status codes,
+     * and captures error responses for parsing.
+     *
+     * @param appointmentData the appointment details to use when creating the Lead record
+     * @return a ZohoLeadCreateUpdateResponse containing the Zoho response code and record ID
+     */
     public ZohoLeadCreateUpdateResponse createLead(AppointmentRequest appointmentData) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(
@@ -126,6 +137,16 @@ public class ZohoLeadsService {
 
 
 
+    /**
+     * Fetches a Lead record from Zoho CRM by its Zoho ID.
+     * <p>
+     * Sends a GET to the Zoho Leads endpoint and parses the response body
+     * into a ZohoLeadFetchResponse. Returns Optional.empty() if the call fails
+     * or returns a non-2xx status.
+     *
+     * @param zcrmLeadId the Zoho CRM ID of the Lead to fetch
+     * @return an Optional containing the ZohoLeadFetchResponse if successful, otherwise Optional.empty()
+     */
     public Optional<ZohoLeadFetchResponse> fetchLead(String zcrmLeadId) {
         String token = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         String url   = ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId);
