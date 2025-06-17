@@ -1,6 +1,7 @@
 package com.saleset.integration.zoho.util;
 
 import com.saleset.core.dto.request.AppointmentRequest;
+import com.saleset.core.entities.Appointment;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,6 +36,12 @@ public final class ZohoUtils {
         String formattedAppointment =
                 appointmentData.getStartDateTime().format(DateTimeFormatter.ofPattern("EEEE, M/d/yy 'at' h:mma"));
         return String.format("%s for %s", appointmentData.getAppointmentType(), formattedAppointment);
+    }
+
+    public static String buildDescription(Appointment appointment) {
+        String formattedAppointment =
+                appointment.getStartDateTime().format(DateTimeFormatter.ofPattern("EEEE, M/d/yy 'at' h:mma"));
+        return String.format("%s for %s", appointment.getAppointmentType(), formattedAppointment);
     }
 
 }

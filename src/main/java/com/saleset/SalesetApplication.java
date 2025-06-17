@@ -32,7 +32,7 @@ public class SalesetApplication {
 		SpringApplication.run(SalesetApplication.class, args);
 	}
 
-	/*
+
 	@Autowired
 	private ZohoLeadsService zohoLeadService;
 
@@ -53,18 +53,52 @@ public class SalesetApplication {
 		return (args) -> {
 
 			AppointmentRequest testRequest = new AppointmentRequest();
-			testRequest.setStartDateTime(LocalDateTime.now().plusDays(5));
+			testRequest.setStartDateTime(LocalDateTime.now().plusDays(3));
+			testRequest.setEndDateTime(LocalDateTime.now().plusDays(3).plusMinutes(60));
 			testRequest.setAppointmentType("Virtual Meeting");
 			testRequest.setFirstName("Sean");
 			testRequest.setLastName("Te$t");
 			testRequest.setEmail("sean.tester@example.com");
 			testRequest.setPhone("+16318895508");
-			testRequest.setStreet("123 Test St");
-			testRequest.setCity("Fake City");
+			testRequest.setStreet("633 Test St");
+			testRequest.setCity("Fake Town");
 			testRequest.setState("NY");
 			testRequest.setZip("11980");
+			testRequest.setBookingReference("bookingReference");
+			testRequest.setBookingSource("Booking_Link");
 
 			ZohoLeadCreateResponse response = zohoLeadService.createLead(testRequest);
+			if (!response.getResponseCode().equals("DUPLICATE_DATA")) {
+				zohoLeadService.fetchLead(response.getZohoLeadId()).ifPresent(fetchedZohoLead -> {
+					LeadRequest leadData = new LeadRequest(
+							testRequest,
+							fetchedZohoLead.getId(),
+							fetchedZohoLead.getAutoNumber(),
+							ZohoLeadFields.LEAD_SOURCE_DEFAULT_VALUE,
+							ZohoLeadFields.SUB_SOURCE_DEFAULT_VALUE,
+							LeadStage.CONVERTED.toString());
+
+					Optional<Lead> optLead = leadRepo.findLeadByExternalId(fetchedZohoLead.getId());
+
+					if (optLead.isPresent()) {
+						Lead lead = optLead.get();
+						lead.setCurrentStage(LeadStage.CONVERTED.toString());
+						leadRepo.safeUpdate(lead);
+
+						Optional<Appointment> optAppointment = appointmentRepo.findAppointmentByLead(lead);
+						if (optAppointment.isPresent()) {
+
+						}
+
+						Address address = new Address(testRequest);
+
+						Appointment appointment = new Appointment(testRequest, lead);
+						appointmentRepo.safeInsert(appointment);
+					} else {
+
+					}
+				});
+			}
 
 			if (response.getResponseCode().equals("DUPLICATE_DATA")) {
 				Optional<Lead> optLead = leadRepo.findLeadByExternalId(response.getZohoLeadId());
@@ -107,7 +141,7 @@ public class SalesetApplication {
 
 		};
 	}
-	*/
+
 
 }
 
