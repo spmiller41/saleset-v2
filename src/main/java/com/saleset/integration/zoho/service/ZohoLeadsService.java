@@ -1,6 +1,7 @@
 package com.saleset.integration.zoho.service;
 
 import com.saleset.core.dto.request.AppointmentRequest;
+import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
 import com.saleset.integration.zoho.dto.response.ZohoLeadCreateUpdateResponse;
@@ -68,7 +69,7 @@ public class ZohoLeadsService {
                 logger.info("Appointment added to Lead ID: {} -- Status Code: {}", lead.getId(), response.getStatusCode());
             } else {
                 logger.warn("Unexpected status updating Lead {} -- {}", lead.getId(), response.getStatusCode());
-                logger.debug("Response body: {}", response.getBody());
+                logger.debug("Update Lead Response body: {}", response.getBody());
             }
         } catch (RestClientException ex) {
             logger.error("Appointment unable to be added to Lead: {} -- Message: {}", lead.getId(), ex.getMessage());
@@ -79,13 +80,15 @@ public class ZohoLeadsService {
 
 
     /**
-     * Updates the specified Lead record in Zoho CRM by setting its appointment date and owner.
+     * Updates the specified Lead in Zoho CRM with a new appointment date/time, sales manager owner, and address details.
      *
-     * @param appointment the Appointment containing the start date/time to set on the lead
+     * @param appointment the Appointment object containing the start date/time to set on the lead
+     * @param address     the Address object containing street, city, state, and zip to update on the lead
+     * @param zcrmLeadId  the Zoho CRM ID of the lead to update
      */
-    public void updateLeadAppointment(Appointment appointment, String zcrmLeadId) {
+    public void updateLeadAppointment(Appointment appointment, Address address, String zcrmLeadId) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
-        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, zcrmSalesManagerId);
+        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
@@ -95,13 +98,13 @@ public class ZohoLeadsService {
                     String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                logger.info("Appointment added to Lead ID: {} -- Status Code: {}", zcrmLeadId, response.getStatusCode());
+                logger.info("Appointment & Address added to Lead ID: {} -- Status Code: {}", zcrmLeadId, response.getStatusCode());
             } else {
-                logger.warn("Unexpected status updating Lead {} -- {}", zcrmLeadId, response.getStatusCode());
-                logger.debug("Response body: {}", response.getBody());
+                logger.warn("Unexpected status updating Lead & Address {} -- {}", zcrmLeadId, response.getStatusCode());
+                logger.debug("Update Lead & Address Response body: {}", response.getBody());
             }
         } catch (RestClientException ex) {
-            logger.error("Appointment unable to be added to Lead: {} -- Message: {}", zcrmLeadId, ex.getMessage());
+            logger.error("Appointment & Address unable to be added to Lead: {} -- Message: {}", zcrmLeadId, ex.getMessage());
         }
     }
 
