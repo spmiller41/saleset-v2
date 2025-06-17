@@ -3,12 +3,12 @@ package com.saleset.integration.zoho.dto.response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ZohoLeadCreateUpdateResponse {
+public class ZohoLeadCreateResponse {
 
     private final String responseCode;
     private final String zohoLeadId;
 
-    public ZohoLeadCreateUpdateResponse(String responseBody) {
+    public ZohoLeadCreateResponse(String responseBody) {
         JSONObject root = new JSONObject(responseBody);
         JSONArray data = root.optJSONArray("data");
 
