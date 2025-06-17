@@ -4,7 +4,7 @@ import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
-import com.saleset.integration.zoho.dto.response.ZohoLeadCreateUpdateResponse;
+import com.saleset.integration.zoho.dto.response.ZohoLeadCreateResponse;
 import com.saleset.integration.zoho.dto.response.ZohoLeadFetchResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
@@ -122,7 +122,7 @@ public class ZohoLeadsService {
      * @param appointmentData the appointment details to use when creating the Lead record
      * @return a ZohoLeadCreateUpdateResponse containing the Zoho response code and record ID
      */
-    public ZohoLeadCreateUpdateResponse createLead(AppointmentRequest appointmentData) {
+    public ZohoLeadCreateResponse createLead(AppointmentRequest appointmentData) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(
                 appointmentData, zcrmSalesManagerId, ambassadorName
@@ -164,7 +164,7 @@ public class ZohoLeadsService {
             );
         }
 
-        return new ZohoLeadCreateUpdateResponse(responseBody);
+        return new ZohoLeadCreateResponse(responseBody);
     }
 
 
