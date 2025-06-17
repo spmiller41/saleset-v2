@@ -1,6 +1,8 @@
 package com.saleset.core.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.saleset.core.dao.LeadRepo;
+import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.PhoneLineType;
 
 /**
@@ -72,6 +74,31 @@ public class LeadRequest {
 
     @JsonProperty("stage")
     private String stage;
+
+    public LeadRequest() {}
+
+    public LeadRequest(AppointmentRequest appointmentData,
+                       String zcrmExternalId,
+                       String zcrmAutoNumber,
+                       String leadSource,
+                       String subSource,
+                       String stage) {
+
+        setFirstName(appointmentData.getFirstName());
+        setLastName(appointmentData.getLastName());
+        setEmail(appointmentData.getEmail());
+        setPrimaryPhone(appointmentData.getPhone());
+        setSecondaryPhone(appointmentData.getPhone());
+        setStreet(appointmentData.getStreet());
+        setCity(appointmentData.getCity());
+        setState(appointmentData.getState());
+        setZipCode(appointmentData.getZip());
+        setZcrmExternalId(zcrmExternalId);
+        setZcrmAutoNumber(zcrmAutoNumber);
+        setLeadSource(leadSource);
+        setSubSource(subSource);
+        setStage(stage);
+    }
 
     private PhoneLineType primaryPhoneType;
 
