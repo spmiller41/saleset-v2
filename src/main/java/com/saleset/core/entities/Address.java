@@ -1,5 +1,6 @@
 package com.saleset.core.entities;
 
+import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.dto.request.LeadRequest;
 import jakarta.persistence.*;
 
@@ -31,6 +32,13 @@ public class Address {
         setCity(leadData.getCity());
         setState(leadData.getState());
         setZipCode(leadData.getZipCode());
+    }
+
+    public Address(AppointmentRequest appointmentData) {
+        setStreet(appointmentData.getStreet());
+        setCity(appointmentData.getCity());
+        setState(appointmentData.getState());
+        setZipCode(appointmentData.getZip());
     }
 
     public int getId() {
