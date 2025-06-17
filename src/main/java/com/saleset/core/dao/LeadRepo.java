@@ -36,7 +36,7 @@ public class LeadRepo {
                     .setParameter("uuid", uuid)
                     .getSingleResult());
         } catch (NoResultException ex) {
-            logger.error("No Lead found with UUID: {}", uuid);
+            logger.warn("No Lead found with UUID: {}", uuid);
             return Optional.empty();
         }
     }
@@ -68,7 +68,7 @@ public class LeadRepo {
 
             return Optional.of(lead);
         } catch (NoResultException ex) {
-            logger.error("No Lead found with this id: {}", leadId);
+            logger.warn("No Lead found with this id: {}", leadId);
             return Optional.empty();
         }
     }
@@ -112,6 +112,20 @@ public class LeadRepo {
                 .getResultList();
     }
 
+    @Transactional
+    public Optional<Lead> findLeadByExternalId(String zcrmExternalId) {
+        String query = "SELECT l FROM Lead l WHERE l.zcrmExternalId = :zcrmExternalId";
 
+        try {
+            Lead lead = entityManager.createQuery(query, Lead.class)
+                    .setParameter("zcrmExternalId", zcrmExternalId)
+                    .getSingleResult();
+
+            return Optional.of(lead);
+        } catch (NoResultException ex) {
+            logger.warn("Could not locate Lead with zcrm external id: {}", zcrmExternalId);
+            return Optional.empty();
+        }
+    }
 
 }
