@@ -1,8 +1,10 @@
 package com.saleset.integration.zoho.util;
 
 import com.saleset.core.dto.request.AppointmentRequest;
+import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
+import com.twilio.rest.microvisor.v1.App;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,6 +14,21 @@ public final class ZohoPayloadUtil {
         JSONObject updatedFields = new JSONObject();
         updatedFields.put(ZohoLeadFields.APPOINTMENT, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
         updatedFields.put(ZohoLeadFields.OWNER, zcrmSalesManagerId);
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put(ZohoLeadFields.DATA, new JSONArray().put(updatedFields));
+
+        return requestBody;
+    }
+
+    public static JSONObject buildAppointmentPayload(Appointment appointment, Address address, String zcrmSalesManagerId) {
+        JSONObject updatedFields = new JSONObject();
+        updatedFields.put(ZohoLeadFields.APPOINTMENT, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
+        updatedFields.put(ZohoLeadFields.OWNER, zcrmSalesManagerId);
+        updatedFields.put(ZohoLeadFields.STREET, address.getStreet());
+        updatedFields.put(ZohoLeadFields.CITY, address.getCity());
+        updatedFields.put(ZohoLeadFields.STATE, address.getState());
+        updatedFields.put(ZohoLeadFields.ZIP_CODE, address.getZipCode());
 
         JSONObject requestBody = new JSONObject();
         requestBody.put(ZohoLeadFields.DATA, new JSONArray().put(updatedFields));
