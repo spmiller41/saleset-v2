@@ -44,6 +44,11 @@ public class Appointment {
         setLeadId(lead.getId());
     }
 
+    public void updateAppointmentDateTime(AppointmentRequest appointmentData) {
+        setStartDateTime(appointmentData.getStartDateTime());
+        setEndDateTime(appointmentData.getEndDateTime());
+    }
+
     public int getId() { return id; }
 
     public void setId(int id) { this.id = id; }
