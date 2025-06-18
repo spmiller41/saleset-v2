@@ -37,10 +37,11 @@ public class ZohoLeadCreateResponse {
         this.zohoLeadId   = id;
     }
 
+    public String getZohoLeadId() { return zohoLeadId; }
 
     public String getResponseCode() { return responseCode; }
 
-    public String getZohoLeadId() { return zohoLeadId; }
+    public boolean isDuplicate() { return this.responseCode.equals("DUPLICATE_DATA"); }
 
     @Override
     public String toString() {
