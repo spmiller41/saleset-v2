@@ -1,8 +1,12 @@
 package com.saleset.integration.zoho.service;
 
+import com.saleset.core.entities.Address;
+import com.saleset.core.entities.Appointment;
 import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
+import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +70,27 @@ public class ZohoDealsService {
         }
     }
 
-    
+    public void updateLeadAppointment(Appointment appointment, Address address, ZohoFetchResponse fetchResponse) {
+        String zcrmDealId = fetchResponse.getId();
+        String accessToken = tokenService.getAccessToken(ZohoModuleApiName.DEALS);
+        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmDealId, ZohoModuleApiName.DEALS),
+                    HttpMethod.PUT,
+                    new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
+                    String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Appointment & Address added to Deal ID: {} -- Status Code: {}", zcrmDealId, response.getStatusCode());
+            } else {
+                logger.warn("Unexpected status updating Deal & Address {} -- {}", zcrmDealId, response.getStatusCode());
+                logger.debug("Update Deal & Address Response body: {}", response.getBody());
+            }
+        } catch (RestClientException ex) {
+            logger.error("Appointment & Address unable to be added to Deal: {} -- Message: {}", zcrmDealId, ex.getMessage());
+        }
+    }
 
 }
