@@ -128,4 +128,20 @@ public class LeadRepo {
         }
     }
 
+    @Transactional
+    public Optional<Lead> findLeadBuAutoNumber(String autoNumber) {
+        String query = "SELECT * FROM Lead l WHERE l.autoNumber = :autoNumber";
+
+        try {
+            Lead lead = entityManager.createQuery(query, Lead.class)
+                    .setParameter("autoNumber", autoNumber)
+                    .getSingleResult();
+
+            return Optional.of(lead);
+        } catch (NoResultException ex) {
+            logger.warn("Could not locate lead with zcrm auto number: {}", autoNumber);
+            return Optional.empty();
+        }
+    }
+
 }
