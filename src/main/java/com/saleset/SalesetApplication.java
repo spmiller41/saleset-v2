@@ -1,29 +1,8 @@
 package com.saleset;
 
-import com.saleset.core.dao.AddressRepo;
-import com.saleset.core.dao.AppointmentRepo;
-import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.request.AppointmentRequest;
-import com.saleset.core.dto.request.LeadRequest;
-import com.saleset.core.entities.Address;
-import com.saleset.core.entities.Appointment;
-import com.saleset.core.entities.Lead;
-import com.saleset.core.enums.LeadStage;
-import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
-import com.saleset.integration.zoho.constants.ZohoLeadFields;
-import com.saleset.integration.zoho.dto.response.ZohoLeadCreateResponse;
-import com.saleset.integration.zoho.dto.response.ZohoLeadFetchResponse;
-import com.saleset.integration.zoho.service.ZohoLeadsService;
-import com.saleset.usecase.ExternalLeadAppointmentHandler;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @SpringBootApplication
 @EnableScheduling

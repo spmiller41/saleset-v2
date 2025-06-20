@@ -10,8 +10,8 @@ import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
+import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
 import com.saleset.integration.zoho.dto.response.ZohoLeadCreateResponse;
-import com.saleset.integration.zoho.dto.response.ZohoLeadFetchResponse;
 import com.saleset.integration.zoho.service.ZohoLeadsService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class ExternalLeadAppointmentHandler {
     @Transactional
     public void handleExternalAppointment(AppointmentRequest appointmentData) {
         ZohoLeadCreateResponse createLeadResponse = zohoLeadService.createLead(appointmentData);
-        ZohoLeadFetchResponse fetched = zohoLeadService.fetchLead(createLeadResponse.getZohoLeadId())
+        ZohoFetchResponse fetched = zohoLeadService.fetchLead(createLeadResponse.getZohoLeadId())
                 .orElseThrow(() -> new IllegalStateException("Zoho lead not found"));
 
         Lead lead = ensureConvertedLead(appointmentData, fetched);
@@ -76,7 +76,7 @@ public class ExternalLeadAppointmentHandler {
 
 
     // Builds a new CONVERTED Lead locally using the entry pipeline and returns it
-    private Lead buildNewConvertedLead(AppointmentRequest appointmentData, ZohoLeadFetchResponse fetchedZohoLead) {
+    private Lead buildNewConvertedLead(AppointmentRequest appointmentData, ZohoFetchResponse fetchedZohoLead) {
         LeadRequest leadData = new LeadRequest(
                 appointmentData,
                 fetchedZohoLead.getId(),
@@ -110,7 +110,7 @@ public class ExternalLeadAppointmentHandler {
 
 
     // Finds or creates a CONVERTED Lead locally based on the fetched Zoho data
-    private Lead ensureConvertedLead(AppointmentRequest appointmentData, ZohoLeadFetchResponse fetched) {
+    private Lead ensureConvertedLead(AppointmentRequest appointmentData, ZohoFetchResponse fetched) {
         return leadRepo.findLeadByExternalId(fetched.getId())
                 .map(this::markConverted)
                 .orElseGet(() -> buildNewConvertedLead(appointmentData, fetched));

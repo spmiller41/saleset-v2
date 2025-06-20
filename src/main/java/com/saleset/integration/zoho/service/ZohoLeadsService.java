@@ -4,8 +4,8 @@ import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
+import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
 import com.saleset.integration.zoho.dto.response.ZohoLeadCreateResponse;
-import com.saleset.integration.zoho.dto.response.ZohoLeadFetchResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
@@ -174,13 +174,13 @@ public class ZohoLeadsService {
      * Fetches a Lead record from Zoho CRM by its Zoho ID.
      * <p>
      * Sends a GET to the Zoho Leads endpoint and parses the response body
-     * into a ZohoLeadFetchResponse. Returns Optional.empty() if the call fails
+     * into a ZohoFetchResponse. Returns Optional.empty() if the call fails
      * or returns a non-2xx status.
      *
      * @param zcrmLeadId the Zoho CRM ID of the Lead to fetch
-     * @return an Optional containing the ZohoLeadFetchResponse if successful, otherwise Optional.empty()
+     * @return an Optional containing the ZohoFetchResponse if successful, otherwise Optional.empty()
      */
-    public Optional<ZohoLeadFetchResponse> fetchLead(String zcrmLeadId) {
+    public Optional<ZohoFetchResponse> fetchLead(String zcrmLeadId) {
         String token = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         String url   = ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId, ZohoModuleApiName.LEADS);
 
@@ -199,7 +199,7 @@ public class ZohoLeadsService {
                 return Optional.empty();
             }
 
-            return Optional.of(new ZohoLeadFetchResponse(body));
+            return Optional.of(new ZohoFetchResponse(body));
         } catch (RestClientException e) {
             logger.warn("Error fetching Lead {} from Zoho CRM: {}", zcrmLeadId, e.getMessage());
             return Optional.empty();

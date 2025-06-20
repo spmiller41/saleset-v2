@@ -2,7 +2,7 @@ package com.saleset.integration.zoho.dto.response;
 
 import org.json.JSONObject;
 
-public class ZohoLeadFetchResponse {
+public class ZohoFetchResponse {
 
     private final String id;
     private final String autoNumber;
@@ -16,7 +16,7 @@ public class ZohoLeadFetchResponse {
     private final String city;
     private final String zip;
 
-    public ZohoLeadFetchResponse(String responseBody) {
+    public ZohoFetchResponse(String responseBody) {
         JSONObject entry = new JSONObject(responseBody)
                 .optJSONArray("data")
                 .optJSONObject(0);
@@ -48,7 +48,7 @@ public class ZohoLeadFetchResponse {
 
     @Override
     public String toString() {
-        return "ZohoLeadFetchResponse{" +
+        return "ZohoFetchResponse{" +
                 "id='" + id + '\'' +
                 ", autoNumber='" + autoNumber + '\'' +
                 ", firstName='" + firstName + '\'' +

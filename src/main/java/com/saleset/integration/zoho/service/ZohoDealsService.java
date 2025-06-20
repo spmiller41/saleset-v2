@@ -1,7 +1,6 @@
 package com.saleset.integration.zoho.service;
 
-import com.saleset.integration.zoho.constants.ZohoLeadFields;
-import com.saleset.integration.zoho.dto.response.ZohoLeadFetchResponse;
+import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoUtils;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ public class ZohoDealsService {
         this.tokenService = tokenService;
     }
 
-    public Optional<ZohoLeadFetchResponse> fetchLead(String field, String value) {
+    public Optional<ZohoFetchResponse> fetchLead(String field, String value) {
         String token = tokenService.getAccessToken(ZohoModuleApiName.DEALS);
         String url   = ZohoUtils.buildSearchRecordEndpoint(zcrmApiBaseUrl, field, value, ZohoModuleApiName.DEALS);
 
@@ -59,12 +58,14 @@ public class ZohoDealsService {
                 return Optional.empty();
             }
 
-            return Optional.of(new ZohoLeadFetchResponse(body));
+            return Optional.of(new ZohoFetchResponse(body));
         } catch (RestClientException e) {
             logger.warn("Error fetching Deal from Zoho CRM. Field: {} - Value: {} --- Message: {}",
                     field, value, e.getMessage());
             return Optional.empty();
         }
     }
+
+    
 
 }
