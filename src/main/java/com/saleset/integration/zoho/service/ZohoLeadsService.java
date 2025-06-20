@@ -60,7 +60,7 @@ public class ZohoLeadsService {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, lead.getZcrmExternalId()),
+                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, lead.getZcrmExternalId(), ZohoModuleApiName.LEADS),
                     HttpMethod.PUT,
                     new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
                     String.class);
@@ -92,7 +92,7 @@ public class ZohoLeadsService {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId),
+                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId, ZohoModuleApiName.LEADS),
                     HttpMethod.PUT,
                     new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
                     String.class);
@@ -131,7 +131,7 @@ public class ZohoLeadsService {
         String responseBody;
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl),
+                    ZohoUtils.buildEndpoint(zcrmApiBaseUrl, ZohoModuleApiName.LEADS),
                     HttpMethod.POST,
                     new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
                     String.class
@@ -182,7 +182,7 @@ public class ZohoLeadsService {
      */
     public Optional<ZohoLeadFetchResponse> fetchLead(String zcrmLeadId) {
         String token = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
-        String url   = ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId);
+        String url   = ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId, ZohoModuleApiName.LEADS);
 
         try {
             ResponseEntity<String> resp = restTemplate.exchange(
