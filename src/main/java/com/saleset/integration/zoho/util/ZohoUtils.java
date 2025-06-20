@@ -2,6 +2,7 @@ package com.saleset.integration.zoho.util;
 
 import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Appointment;
+import com.saleset.integration.zoho.constants.ZohoLeadFields;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,12 +25,24 @@ public final class ZohoUtils {
         return headers;
     }
 
-    public static String buildEndpoint(String zcrmApiBaseUrl, String zcrmLeadId) {
-        return String.format("%s%s/%s", zcrmApiBaseUrl, ZohoModuleApiName.LEADS, zcrmLeadId);
+    public static String buildEndpoint(String zcrmApiBaseUrl, String zcrmLeadId, ZohoModuleApiName zohoModule) {
+        return switch (zohoModule) {
+            case LEADS, DEALS -> String.format("%s%s/%s", zcrmApiBaseUrl, zohoModule, zcrmLeadId);
+        };
     }
 
-    public static String buildEndpoint(String zcrmApiBaseUrl) {
-        return String.format("%s%s", zcrmApiBaseUrl, ZohoModuleApiName.LEADS);
+    public static String buildEndpoint(String zcrmApiBaseUrl, ZohoModuleApiName zohoModule) {
+        return switch (zohoModule) {
+            case LEADS, DEALS -> String.format("%s%s", zcrmApiBaseUrl, zohoModule);
+        };
+    }
+
+    public static String buildSearchRecordEndpoint(
+            String zcrmApiBaseUrl, String field, String value, ZohoModuleApiName zohoModule) {
+
+        return switch (zohoModule) {
+            case LEADS, DEALS -> String.format("%s%s/search?criteria=%s:equals:%s", zcrmApiBaseUrl, zohoModule, field, value);
+        };
     }
 
     public static String buildDescription(AppointmentRequest appointmentData) {

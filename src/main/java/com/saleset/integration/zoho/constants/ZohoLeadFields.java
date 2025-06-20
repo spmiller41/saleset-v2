@@ -22,6 +22,7 @@ public class ZohoLeadFields {
     public static final String CITY = "City";
     public static final String STATE = "State";
     public static final String ZIP_CODE = "Zip_Code";
+    public static final String AUTO_NUMBER = "Auto_Number_1";
 
     // Default values
     public static final String PRODUCT1_DEFAULT_VALUE = "Residential Solar";
