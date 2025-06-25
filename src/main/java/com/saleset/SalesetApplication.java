@@ -2,14 +2,8 @@ package com.saleset;
 
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.request.AppointmentRequest;
-import com.saleset.core.dto.request.LeadRequest;
-import com.saleset.core.entities.Address;
-import com.saleset.core.entities.Appointment;
-import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
-import com.saleset.integration.zoho.constants.ZohoLeadFields;
-import com.saleset.integration.zoho.dto.response.ZohoLeadUpsertResponse;
-import com.saleset.integration.zoho.service.ZohoDealsService;
-import com.saleset.integration.zoho.service.ZohoLeadsService;
+import com.saleset.core.entities.Lead;
+import com.saleset.usecase.InternalLeadAppointmentHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -29,64 +23,45 @@ public class SalesetApplication {
 
 	/*
 	@Autowired
-	private LeadEntryPipelineManager leadEntryPipelineManager;
-
-	@Autowired
-	private ZohoLeadsService zohoLeadsService;
-
-	@Autowired
-	private ZohoDealsService zohoDealsService;
-
-	@Autowired
 	private LeadRepo leadRepo;
+
+	@Autowired
+	private InternalLeadAppointmentHandler internalLeadAppointmentHandler;
 
 	@Bean
 	public CommandLineRunner demo() {
 
 		return (args) -> {
-
-
-			LeadRequest leadRequest = new LeadRequest();
-			leadRequest.setFirstName("Sean");
-			leadRequest.setLastName("Te$t");
-			leadRequest.setStreet("254 Dogwood Road West");
-			leadRequest.setCity("Mastic Beach");
-			leadRequest.setState("NY");
-			leadRequest.setZipCode("11951");
-			leadRequest.setLeadSource("Internet PPC");
-			leadRequest.setSubSource("Google");
-			leadRequest.setPrimaryPhone("6318895508");
-			leadRequest.setEmail("seantesting@test.com");
-			leadRequest.setStage("New");
-			leadRequest.setZcrmExternalId("3880966000334300145");
-			leadRequest.setZcrmAutoNumber("90569");
-
-			// leadEntryPipelineManager.manageLead(leadRequest);
-
-			Appointment appointment = new Appointment();
-			appointment.setAppointmentType("Virtual Meeting");
-			appointment.setBookingSource("YCBM");
-			appointment.setBookingReference("ycbm-test-01");
-			appointment.setStartDateTime(LocalDateTime.now().plusDays(5));
-
 			leadRepo.findLeadById(1).ifPresent(lead -> {
-				ZohoLeadUpsertResponse response = zohoLeadsService.updateLeadAppointment(appointment, lead);
-				System.out.println(response);
-
-				if (response.isInvalidData()) {
-					zohoDealsService.fetchDeal(ZohoLeadFields.AUTO_NUMBER, "90569").ifPresent(fetchResponse -> {
-						zohoDealsService.updateDealAppointment(appointment, new Address(leadRequest), fetchResponse);
-					});
-				}
+				AppointmentRequest appointmentData = buildTestData(lead);
+				internalLeadAppointmentHandler.handleInternalAppointment(appointmentData);
 			});
 
 		};
 
 	}
-	 */
 
-
+	private AppointmentRequest buildTestData(Lead lead) {
+		AppointmentRequest appointmentData = new AppointmentRequest();
+		appointmentData.setLeadBookingUUID(lead.getUuid());
+		appointmentData.setBookingReference("YCBM");
+		appointmentData.setBookingReference("ycbm-test-01");
+		appointmentData.setAppointmentType("Virtual Meeting");
+		appointmentData.setEmail("seantesting@test.com");
+		appointmentData.setPhone("+16318895508");
+		appointmentData.setFirstName("Sean");
+		appointmentData.setLastName("Te$t");
+		appointmentData.setStreet("144 Test St");
+		appointmentData.setCity("Test City");
+		appointmentData.setState("NY");
+		appointmentData.setZip("11980");
+		appointmentData.setStartDateTime(LocalDateTime.now().plusDays(4));
+		appointmentData.setEndDateTime(LocalDateTime.now().plusDays(4).plusHours(1));
+		return appointmentData;
+	}
+	*/
 
 }
+
 
 
