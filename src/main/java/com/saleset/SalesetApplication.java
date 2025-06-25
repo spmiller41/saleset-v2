@@ -1,10 +1,11 @@
 package com.saleset;
 
 import com.saleset.core.dao.LeadRepo;
-import com.saleset.core.dto.request.LeadRequest;
 import com.saleset.core.entities.Appointment;
-import com.saleset.core.entities.Lead;
 import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
+import com.saleset.integration.zoho.constants.ZohoLeadFields;
+import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
+import com.saleset.integration.zoho.dto.response.ZohoLeadUpsertResponse;
 import com.saleset.integration.zoho.service.ZohoDealsService;
 import com.saleset.integration.zoho.service.ZohoLeadsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ public class SalesetApplication {
 			leadRequest.setZcrmExternalId("3880966000334300145");
 			leadRequest.setZcrmAutoNumber("90569");
 
+			leadEntryPipelineManager.manageLead(leadRequest);
+
 
 
 			Appointment appointment = new Appointment();
@@ -67,7 +70,12 @@ public class SalesetApplication {
 			appointment.setStartDateTime(LocalDateTime.now().plusDays(5));
 
 			leadRepo.findLeadById(1).ifPresent(lead -> {
-				zohoLeadsService.updateLeadAppointment(appointment, lead);
+				ZohoLeadUpsertResponse response = zohoLeadsService.updateLeadAppointment(appointment, lead);
+				System.out.println(response);
+
+				if (response.isInvalidData()) {
+					zohoDealsService.fetchLead(ZohoLeadFields.AUTO_NUMBER, "9999").ifPresent(System.out::println);
+				}
 			});
 
 
@@ -77,7 +85,8 @@ public class SalesetApplication {
 	}
 	*/
 
-	
+
+
 }
 
 
