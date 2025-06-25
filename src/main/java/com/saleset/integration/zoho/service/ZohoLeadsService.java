@@ -5,7 +5,7 @@ import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
 import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
-import com.saleset.integration.zoho.dto.response.ZohoLeadCreateResponse;
+import com.saleset.integration.zoho.dto.response.ZohoLeadUpsertResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
@@ -54,10 +54,11 @@ public class ZohoLeadsService {
      * @param appointment the Appointment containing the start date/time to set on the lead
      * @param lead        the Lead entity whose external Zoho ID will be updated
      */
-    public void updateLeadAppointment(Appointment appointment, Lead lead) {
+    public ZohoLeadUpsertResponse updateLeadAppointment(Appointment appointment, Lead lead) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, zcrmSalesManagerId);
 
+        String responseBody;
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     ZohoUtils.buildEndpoint(zcrmApiBaseUrl, lead.getZcrmExternalId(), ZohoModuleApiName.LEADS),
@@ -65,15 +66,27 @@ public class ZohoLeadsService {
                     new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
                     String.class);
 
+            responseBody = response.getBody();
+
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("Appointment added to Lead ID: {} -- Status Code: {}", lead.getId(), response.getStatusCode());
             } else {
                 logger.warn("Unexpected status updating Lead {} -- {}", lead.getId(), response.getStatusCode());
                 logger.debug("Update Lead Response body: {}", response.getBody());
             }
+        } catch (HttpClientErrorException e) {
+            responseBody = e.getResponseBodyAsString();
+            logger.error(
+                    "HttpClientErrorException - Appointment unable to be added to Lead: {} -- Message: {}",
+                    lead.getId(), e.getMessage());
         } catch (RestClientException ex) {
-            logger.error("Appointment unable to be added to Lead: {} -- Message: {}", lead.getId(), ex.getMessage());
+            responseBody = "{}";
+            logger.error(
+                    "RestClientException - Appointment unable to be added to Lead: {} -- Message: {}",
+                    lead.getId(), ex.getMessage());
         }
+
+        return new ZohoLeadUpsertResponse(responseBody);
     }
 
 
@@ -86,10 +99,11 @@ public class ZohoLeadsService {
      * @param address     the Address object containing street, city, state, and zip to update on the lead
      * @param zcrmLeadId  the Zoho CRM ID of the lead to update
      */
-    public void updateLeadAppointment(Appointment appointment, Address address, String zcrmLeadId) {
+    public ZohoLeadUpsertResponse updateLeadAppointment(Appointment appointment, Address address, String zcrmLeadId) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId);
 
+        String responseBody;
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     ZohoUtils.buildEndpoint(zcrmApiBaseUrl, zcrmLeadId, ZohoModuleApiName.LEADS),
@@ -97,15 +111,27 @@ public class ZohoLeadsService {
                     new HttpEntity<>(requestBody.toString(), ZohoUtils.buildHeaders(accessToken)),
                     String.class);
 
+            responseBody = response.getBody();
+
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("Appointment & Address added to Lead ID: {} -- Status Code: {}", zcrmLeadId, response.getStatusCode());
             } else {
                 logger.warn("Unexpected status updating Lead & Address {} -- {}", zcrmLeadId, response.getStatusCode());
                 logger.debug("Update Lead & Address Response body: {}", response.getBody());
             }
+        } catch (HttpClientErrorException e) {
+            responseBody = e.getResponseBodyAsString();
+            logger.error(
+                    "HttpClientErrorException - Appointment & Address unable to be added to Lead: {} -- Message: {}",
+                    zcrmLeadId, e.getMessage());
         } catch (RestClientException ex) {
-            logger.error("Appointment & Address unable to be added to Lead: {} -- Message: {}", zcrmLeadId, ex.getMessage());
+            responseBody = "{}";
+            logger.error(
+                    "RestClientException - Appointment & Address unable to be added to Lead: {} -- Message: {}",
+                    zcrmLeadId, ex.getMessage());
         }
+
+        return new ZohoLeadUpsertResponse(responseBody);
     }
 
 
@@ -122,7 +148,7 @@ public class ZohoLeadsService {
      * @param appointmentData the appointment details to use when creating the Lead record
      * @return a ZohoLeadCreateUpdateResponse containing the Zoho response code and record ID
      */
-    public ZohoLeadCreateResponse createLead(AppointmentRequest appointmentData) {
+    public ZohoLeadUpsertResponse createLead(AppointmentRequest appointmentData) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
         JSONObject requestBody = ZohoPayloadUtil.buildLeadCreatePayload(
                 appointmentData, zcrmSalesManagerId, ambassadorName
@@ -164,7 +190,7 @@ public class ZohoLeadsService {
             );
         }
 
-        return new ZohoLeadCreateResponse(responseBody);
+        return new ZohoLeadUpsertResponse(responseBody);
     }
 
 
