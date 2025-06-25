@@ -1,10 +1,12 @@
 package com.saleset;
 
 import com.saleset.core.dao.LeadRepo;
+import com.saleset.core.dto.request.AppointmentRequest;
+import com.saleset.core.dto.request.LeadRequest;
+import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
-import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
 import com.saleset.integration.zoho.dto.response.ZohoLeadUpsertResponse;
 import com.saleset.integration.zoho.service.ZohoDealsService;
 import com.saleset.integration.zoho.service.ZohoLeadsService;
@@ -59,9 +61,7 @@ public class SalesetApplication {
 			leadRequest.setZcrmExternalId("3880966000334300145");
 			leadRequest.setZcrmAutoNumber("90569");
 
-			leadEntryPipelineManager.manageLead(leadRequest);
-
-
+			// leadEntryPipelineManager.manageLead(leadRequest);
 
 			Appointment appointment = new Appointment();
 			appointment.setAppointmentType("Virtual Meeting");
@@ -74,16 +74,16 @@ public class SalesetApplication {
 				System.out.println(response);
 
 				if (response.isInvalidData()) {
-					zohoDealsService.fetchLead(ZohoLeadFields.AUTO_NUMBER, "9999").ifPresent(System.out::println);
+					zohoDealsService.fetchDeal(ZohoLeadFields.AUTO_NUMBER, "90569").ifPresent(fetchResponse -> {
+						zohoDealsService.updateDealAppointment(appointment, new Address(leadRequest), fetchResponse);
+					});
 				}
 			});
-
-
 
 		};
 
 	}
-	*/
+	 */
 
 
 
