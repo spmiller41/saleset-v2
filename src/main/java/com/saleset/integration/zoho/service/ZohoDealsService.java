@@ -6,6 +6,7 @@ import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,25 @@ public class ZohoDealsService {
         this.tokenService = tokenService;
     }
 
-    public Optional<ZohoFetchResponse> fetchLead(String field, String value) {
+
+    /**
+     * Searches the Zoho CRM Deals module for a record matching the given field and value.
+     * <p>
+     * This method:
+     * <ol>
+     *   <li>Retrieves an access token for the Deals module.</li>
+     *   <li>Builds the search URL using the specified field and value.</li>
+     *   <li>Makes an HTTP GET request to Zoho.</li>
+     *   <li>If the response is not 2xx, or the body is null/blank, logs an info message and returns empty.</li>
+     *   <li>Parses the JSON body; if the "data" array is missing or empty, logs an info message and returns empty.</li>
+     *   <li>Otherwise constructs and returns a {@link ZohoFetchResponse} wrapped in an Optional.</li>
+     * </ol>
+     *
+     * @param field the Zoho API field name to search (e.g. "Auto_Number_1")
+     * @param value the value to match for the given field
+     * @return an Optional containing the fetch response if a matching deal is found, or Optional.empty() otherwise
+     */
+    public Optional<ZohoFetchResponse> fetchDeal(String field, String value) {
         String token = tokenService.getAccessToken(ZohoModuleApiName.DEALS);
         String url   = ZohoUtils.buildSearchRecordEndpoint(zcrmApiBaseUrl, field, value, ZohoModuleApiName.DEALS);
 
@@ -56,21 +75,29 @@ public class ZohoDealsService {
             );
 
             String body = resp.getBody();
-            if (!resp.getStatusCode().is2xxSuccessful()) {
-                logger.warn("Unexpected status fetching Deal from Zoho CRM. Field: {} - Value: {}. Body: {}",
-                        field, value, body);
+
+            if (!resp.getStatusCode().is2xxSuccessful() || body == null || body.isBlank()) {
+                logger.info("No response body fetching Deal {} = {}; status was {}", field, value, resp.getStatusCode());
+                return Optional.empty();
+            }
+
+            JSONObject root = new JSONObject(body);
+            JSONArray data = root.optJSONArray("data");
+            if (data == null || data.isEmpty()) {
+                logger.info("No matching Deal found for {} = {}", field, value);
                 return Optional.empty();
             }
 
             return Optional.of(new ZohoFetchResponse(body));
+
         } catch (RestClientException e) {
-            logger.warn("Error fetching Deal from Zoho CRM. Field: {} - Value: {} --- Message: {}",
-                    field, value, e.getMessage());
+            logger.warn("Error fetching Deal {} = {}: {}", field, value, e.getMessage());
             return Optional.empty();
         }
     }
 
-    public void updateLeadAppointment(Appointment appointment, Address address, ZohoFetchResponse fetchResponse) {
+
+    public void updateDealAppointment(Appointment appointment, Address address, ZohoFetchResponse fetchResponse) {
         String zcrmDealId = fetchResponse.getId();
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.DEALS);
         JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId);
