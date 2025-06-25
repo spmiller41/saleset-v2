@@ -7,6 +7,7 @@ public class ZohoLeadFields {
 
     // Fields
     public static final String APPOINTMENT = "Appointment";
+    public static final String MOST_RECENT_APPOINTMENT = "Last_appointment";
     public static final String OWNER = "Owner";
     public static final String PRODUCT1 = "Product1";
     public static final String DESCRIPTION = "Description";
