@@ -9,6 +9,7 @@ import com.saleset.integration.zoho.dto.response.ZohoLeadUpsertResponse;
 import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import com.saleset.integration.zoho.util.ZohoPayloadUtil;
 import com.saleset.integration.zoho.util.ZohoUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,14 +198,20 @@ public class ZohoLeadsService {
 
 
     /**
-     * Fetches a Lead record from Zoho CRM by its Zoho ID.
+     * Retrieves a Lead record from Zoho CRM by its Zoho record ID.
      * <p>
-     * Sends a GET to the Zoho Leads endpoint and parses the response body
-     * into a ZohoFetchResponse. Returns Optional.empty() if the call fails
-     * or returns a non-2xx status.
+     * This method:
+     * <ul>
+     *   <li>Obtains an access token for the Leads module.</li>
+     *   <li>Builds the GET endpoint URL using the provided Zoho record ID.</li>
+     *   <li>Sends the request and checks for a successful (2xx) status;</li>
+     *   <li>If the response body is null or blank, logs an info message and returns empty.</li>
+     *   <li>Parses the JSON payload, and if the "data" array is missing or empty, logs an info message and returns empty.</li>
+     *   <li>Otherwise constructs a {@link ZohoFetchResponse} from the body and returns it wrapped in an {@link Optional}.</li>
+     * </ul>
      *
-     * @param zcrmLeadId the Zoho CRM ID of the Lead to fetch
-     * @return an Optional containing the ZohoFetchResponse if successful, otherwise Optional.empty()
+     * @param zcrmLeadId the Zoho CRM record ID of the Lead to fetch
+     * @return an Optional containing the parsed {@link ZohoFetchResponse} if found; empty if not found or on error
      */
     public Optional<ZohoFetchResponse> fetchLead(String zcrmLeadId) {
         String token = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
@@ -219,15 +226,23 @@ public class ZohoLeadsService {
             );
 
             String body = resp.getBody();
-            if (!resp.getStatusCode().is2xxSuccessful()) {
-                logger.warn("Unexpected status fetching Lead {} → {}. Body: {}",
-                        zcrmLeadId, resp.getStatusCode(), body);
+
+            if (!resp.getStatusCode().is2xxSuccessful() || body == null || body.isBlank()) {
+                logger.info("No response body fetching Lead with Zoho record id: {}; status was {}", zcrmLeadId, resp.getStatusCode());
+                return Optional.empty();
+            }
+
+            JSONObject root = new JSONObject(body);
+            JSONArray data = root.optJSONArray("data");
+            if (data == null || data.isEmpty()) {
+                logger.info("No matching Lead found for zoho record id: {}", zcrmLeadId);
                 return Optional.empty();
             }
 
             return Optional.of(new ZohoFetchResponse(body));
+
         } catch (RestClientException e) {
-            logger.warn("Error fetching Lead {} from Zoho CRM: {}", zcrmLeadId, e.getMessage());
+            logger.warn("Error fetching Lead with Zoho record id: {}, Message: {}", zcrmLeadId, e.getMessage());
             return Optional.empty();
         }
     }
