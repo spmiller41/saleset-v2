@@ -11,7 +11,7 @@ import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
 import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
-import com.saleset.integration.zoho.dto.response.ZohoLeadCreateResponse;
+import com.saleset.integration.zoho.dto.response.ZohoLeadUpsertResponse;
 import com.saleset.integration.zoho.service.ZohoLeadsService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class ExternalLeadAppointmentHandler {
      */
     @Transactional
     public void handleExternalAppointment(AppointmentRequest appointmentData) {
-        ZohoLeadCreateResponse createLeadResponse = zohoLeadService.createLead(appointmentData);
+        ZohoLeadUpsertResponse createLeadResponse = zohoLeadService.createLead(appointmentData);
         ZohoFetchResponse fetched = zohoLeadService.fetchLead(createLeadResponse.getZohoLeadId())
                 .orElseThrow(() -> new IllegalStateException("Zoho lead not found"));
 
