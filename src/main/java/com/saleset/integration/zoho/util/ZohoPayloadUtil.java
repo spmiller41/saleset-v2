@@ -4,14 +4,19 @@ import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
+import com.saleset.integration.zoho.enums.ZohoModuleApiName;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class ZohoPayloadUtil {
 
-    public static JSONObject buildAppointmentPayload(Appointment appointment, String zcrmSalesManagerId) {
+    public static JSONObject buildAppointmentPayload(Appointment appointment, String zcrmSalesManagerId, ZohoModuleApiName zohoModuleApiName) {
+        String appointmentField = zohoModuleApiName == ZohoModuleApiName.LEADS
+                ? ZohoLeadFields.APPOINTMENT
+                : ZohoLeadFields.MOST_RECENT_APPOINTMENT;
+
         JSONObject updatedFields = new JSONObject();
-        updatedFields.put(ZohoLeadFields.APPOINTMENT, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
+        updatedFields.put(appointmentField, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
         updatedFields.put(ZohoLeadFields.OWNER, zcrmSalesManagerId);
         updatedFields.put(ZohoLeadFields.DESCRIPTION, ZohoUtils.buildDescription(appointment));
 
@@ -21,9 +26,13 @@ public final class ZohoPayloadUtil {
         return requestBody;
     }
 
-    public static JSONObject buildAppointmentPayload(Appointment appointment, Address address, String zcrmSalesManagerId) {
+    public static JSONObject buildAppointmentPayload(Appointment appointment, Address address, String zcrmSalesManagerId, ZohoModuleApiName zohoModuleApiName) {
+        String appointmentField = zohoModuleApiName == ZohoModuleApiName.LEADS
+                ? ZohoLeadFields.APPOINTMENT
+                : ZohoLeadFields.MOST_RECENT_APPOINTMENT;
+
         JSONObject updatedFields = new JSONObject();
-        updatedFields.put(ZohoLeadFields.APPOINTMENT, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
+        updatedFields.put(appointmentField, ZohoUtils.formatDateTime(appointment.getStartDateTime()));
         updatedFields.put(ZohoLeadFields.OWNER, zcrmSalesManagerId);
         updatedFields.put(ZohoLeadFields.DESCRIPTION, ZohoUtils.buildDescription(appointment));
         updatedFields.put(ZohoLeadFields.STREET, address.getStreet());
