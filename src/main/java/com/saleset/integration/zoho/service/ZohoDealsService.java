@@ -100,7 +100,7 @@ public class ZohoDealsService {
     public void updateDealAppointment(Appointment appointment, Address address, ZohoFetchResponse fetchResponse) {
         String zcrmDealId = fetchResponse.getId();
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.DEALS);
-        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId);
+        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId, ZohoModuleApiName.DEALS);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(

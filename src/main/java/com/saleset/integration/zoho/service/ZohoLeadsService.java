@@ -57,7 +57,8 @@ public class ZohoLeadsService {
      */
     public ZohoLeadUpsertResponse updateLeadAppointment(Appointment appointment, Lead lead) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
-        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, zcrmSalesManagerId);
+        JSONObject requestBody =
+                ZohoPayloadUtil.buildAppointmentPayload(appointment, zcrmSalesManagerId, ZohoModuleApiName.LEADS);
 
         String responseBody;
         try {
@@ -102,7 +103,8 @@ public class ZohoLeadsService {
      */
     public ZohoLeadUpsertResponse updateLeadAppointment(Appointment appointment, Address address, String zcrmLeadId) {
         String accessToken = tokenService.getAccessToken(ZohoModuleApiName.LEADS);
-        JSONObject requestBody = ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId);
+        JSONObject requestBody =
+                ZohoPayloadUtil.buildAppointmentPayload(appointment, address, zcrmSalesManagerId, ZohoModuleApiName.LEADS);
 
         String responseBody;
         try {
