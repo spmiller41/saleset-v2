@@ -1,6 +1,5 @@
 package com.saleset.usecase;
 
-import com.saleset.core.dao.AppointmentRepo;
 import com.saleset.core.dao.LeadRepo;
 import com.saleset.core.dto.request.AppointmentRequest;
 import com.saleset.core.dto.request.LeadRequest;
@@ -8,6 +7,7 @@ import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Lead;
 import com.saleset.core.enums.LeadStage;
+import com.saleset.core.service.persistence.AppointmentTransactionManager;
 import com.saleset.core.service.persistence.leads.LeadEntryPipelineManager;
 import com.saleset.integration.zoho.constants.ZohoLeadFields;
 import com.saleset.integration.zoho.dto.response.ZohoFetchResponse;
@@ -31,18 +31,18 @@ public class ExternalLeadAppointmentHandler {
 
     private final ZohoLeadsService zohoLeadService;
     private final LeadRepo leadRepo;
-    private final AppointmentRepo appointmentRepo;
     private final LeadEntryPipelineManager entryPipeline;
+    private final AppointmentTransactionManager appointmentTransactionManager;
 
     @Autowired
     public ExternalLeadAppointmentHandler(ZohoLeadsService zohoLeadService,
                                           LeadRepo leadRepo,
-                                          AppointmentRepo appointmentRepo,
-                                          LeadEntryPipelineManager entryPipeline) {
+                                          LeadEntryPipelineManager entryPipeline,
+                                          AppointmentTransactionManager appointmentTransactionManager) {
         this.zohoLeadService = zohoLeadService;
         this.leadRepo = leadRepo;
-        this.appointmentRepo = appointmentRepo;
         this.entryPipeline = entryPipeline;
+        this.appointmentTransactionManager = appointmentTransactionManager;
     }
 
     /**
@@ -61,13 +61,13 @@ public class ExternalLeadAppointmentHandler {
      * @param appointmentData the incoming appointment details
      */
     @Transactional
-    public void handleExternalAppointment(AppointmentRequest appointmentData) {
+    public void syncLeadAppointment(AppointmentRequest appointmentData) {
         ZohoLeadUpsertResponse createLeadResponse = zohoLeadService.createLead(appointmentData);
         ZohoFetchResponse fetched = zohoLeadService.fetchLead(createLeadResponse.getZohoLeadId())
                 .orElseThrow(() -> new IllegalStateException("Zoho lead not found"));
 
         Lead lead = ensureConvertedLead(appointmentData, fetched);
-        Appointment appointment = upsertAppointment(lead, appointmentData);
+        Appointment appointment = appointmentTransactionManager.upsertAppointment(lead, appointmentData);
 
         if (createLeadResponse.isDuplicate()) {
             zohoLeadService.updateLeadAppointment(appointment, new Address(appointmentData), fetched.getId());
@@ -88,24 +88,6 @@ public class ExternalLeadAppointmentHandler {
 
         return leadRepo.findLeadByExternalId(fetchedZohoLead.getId())
                 .orElseThrow(() -> new IllegalStateException("Pipeline failed to create lead"));
-    }
-
-
-    // Inserts or updates the Appointment for the given Lead based on the request
-    private Appointment upsertAppointment(Lead lead, AppointmentRequest appointmentData) {
-        return appointmentRepo.findAppointmentByLead(lead)
-                .map(existingAppointment -> {
-                    existingAppointment.updateAppointmentDateTime(appointmentData);
-                    appointmentRepo.safeUpdate(existingAppointment);
-                    logger.info("Updated Appointment for Lead Id: {}", lead.getId());
-                    return existingAppointment;
-                })
-                .orElseGet(() -> {
-                    Appointment appointment = new Appointment(appointmentData, lead);
-                    appointmentRepo.safeInsert(appointment);
-                    logger.info("Inserted Appointment for Lead Id {}", lead.getId());
-                    return appointment;
-                });
     }
 
 
