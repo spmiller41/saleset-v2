@@ -34,7 +34,7 @@ public class SalesetApplication {
 		return (args) -> {
 			leadRepo.findLeadById(1).ifPresent(lead -> {
 				AppointmentRequest appointmentData = buildTestData(lead);
-				internalLeadAppointmentHandler.handleInternalAppointment(appointmentData);
+				internalLeadAppointmentHandler.syncLeadAppointment(appointmentData);
 			});
 
 		};
@@ -60,6 +60,7 @@ public class SalesetApplication {
 		return appointmentData;
 	}
 	*/
+
 
 }
 
