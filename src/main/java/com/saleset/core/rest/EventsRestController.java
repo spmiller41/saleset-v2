@@ -32,12 +32,14 @@ public class EventsRestController {
     @Autowired
     private LeadRepo leadRepo;
 
+    /*
     @PostMapping("/email_event")
     public void emailEvent(@RequestBody List<EventRequest> eventDataList) {
         eventDataList.forEach(eventData -> {
             Optional<Event> optEvent = eventTransactionManager.insertEventHandler(eventData, EventSource.EMAIL);
         });
     }
+    */
 
     // Anonymous endpoint name for click tracking - to be masked in booking link
     @GetMapping("/go")
