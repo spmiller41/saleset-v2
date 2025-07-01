@@ -79,9 +79,6 @@ public class Dispatcher implements PhoneRoutingStrategy {
         Optional<Contact> optContact = contactRepo.findContactById(lead.getContactId());
         if (optContact.isEmpty()) return;
 
-        Optional<Appointment> optAppointment = appointmentRepo.findAppointmentByLead(lead);
-        if (optAppointment.isEmpty()) return;
-
         sendGridManager.sendFollowUpCallAlert(lead, optContact.get(), address);
     }
 
