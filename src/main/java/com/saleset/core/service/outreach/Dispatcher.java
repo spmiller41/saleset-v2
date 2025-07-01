@@ -8,8 +8,10 @@ import com.saleset.core.entities.Address;
 import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
+import com.saleset.core.service.outreach.templates.FollowUpTextGenerator;
 import com.saleset.integration.sendgrid.SendGridManager;
 import com.saleset.integration.twilio.service.TwilioManager;
+import com.twilio.rest.api.v2010.account.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +62,12 @@ public class Dispatcher implements PhoneRoutingStrategy {
         }
 
         String fromNumber = determineFromNumber(lead, optContact.get());
-        int followUpCount = lead.getFollowUpCount() + 1;
-        String body = "Hello, " + optContact.get().getFirstName()
-                + ". Current beta testing. Booking link below: \n" + lead.getTrackingWebhookUrl()
-                + "\n" + "Follow-up count: " + followUpCount;
 
-        twilioManager.sendSMS(fromNumber, optContact.get().getPrimaryPhone(), body);
+        FollowUpTextGenerator textGen = new FollowUpTextGenerator(lead, optContact.get());
+        String body = textGen.build(lead);
+
+        Message message = twilioManager.sendSMS(fromNumber, optContact.get().getPrimaryPhone(), body);
+        logger.info("Message attempted for Lead: {} -> Response Status: {}", lead.getId(), message.getStatus());
     }
 
 
