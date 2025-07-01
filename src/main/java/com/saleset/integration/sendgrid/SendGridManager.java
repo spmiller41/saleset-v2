@@ -220,8 +220,10 @@ public class SendGridManager {
             Response response = sendDynamicEmail(personalization, mail, ambassadorEmail, ambassadorEmail);
             // Check if the response code indicates success (200-299)
             if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+                logger.info("Follow-up call email attempt. Response: {}", response.getBody());
                 return response;
             } else {
+                logger.error("Follow-up email failed. Response: {}", response.getBody());
                 return null;
             }
         } catch (IOException ex) {
