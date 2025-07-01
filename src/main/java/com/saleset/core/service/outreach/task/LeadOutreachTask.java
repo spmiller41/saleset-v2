@@ -65,7 +65,13 @@ public class LeadOutreachTask {
 
         leadList.forEach(lead -> {
             // Only dispatch follow-up if this contact hasn't already been processed during this task run
-            if (contactedContactIds.add(lead.getContactId())) dispatcher.executeSmsFollowUp(lead);
+            if (contactedContactIds.add(lead.getContactId())) {
+                // Follow-up with lead via sms.
+                dispatcher.executeSmsFollowUp(lead);
+
+                // Notify ambassador for follow-up via phone.
+                dispatcher.executeFollowUpEmail(lead);
+            }
             engagementManager.handleFollowUpExecution(lead);
         });
     }

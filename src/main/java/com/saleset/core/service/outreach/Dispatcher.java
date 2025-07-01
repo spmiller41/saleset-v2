@@ -1,10 +1,14 @@
 package com.saleset.core.service.outreach;
 
 import com.saleset.core.dao.AddressRepo;
+import com.saleset.core.dao.AppointmentRepo;
 import com.saleset.core.dao.ContactRepo;
 import com.saleset.core.dao.MarketZipDataRepo;
+import com.saleset.core.entities.Address;
+import com.saleset.core.entities.Appointment;
 import com.saleset.core.entities.Contact;
 import com.saleset.core.entities.Lead;
+import com.saleset.integration.sendgrid.SendGridManager;
 import com.saleset.integration.twilio.service.TwilioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +33,22 @@ public class Dispatcher implements PhoneRoutingStrategy {
     private final ContactRepo contactRepo;
     private final AddressRepo addressRepo;
     private final MarketZipDataRepo mzdRepo;
+    private final AppointmentRepo appointmentRepo;
+    private final SendGridManager sendGridManager;
 
     @Autowired
-    public Dispatcher(TwilioManager twilioManager, ContactRepo contactRepo, AddressRepo addressRepo, MarketZipDataRepo mzdRepo) {
+    public Dispatcher(TwilioManager twilioManager,
+                      ContactRepo contactRepo,
+                      AddressRepo addressRepo,
+                      MarketZipDataRepo mzdRepo,
+                      AppointmentRepo appointmentRepo,
+                      SendGridManager sendGridManager) {
         this.twilioManager = twilioManager;
         this.contactRepo = contactRepo;
         this.addressRepo = addressRepo;
         this.mzdRepo = mzdRepo;
+        this.appointmentRepo = appointmentRepo;
+        this.sendGridManager = sendGridManager;
     }
 
 
@@ -53,6 +66,21 @@ public class Dispatcher implements PhoneRoutingStrategy {
                 + "\n" + "Follow-up count: " + followUpCount;
 
         twilioManager.sendSMS(fromNumber, optContact.get().getPrimaryPhone(), body);
+    }
+
+
+    public void executeFollowUpEmail(Lead lead) {
+        Address address;
+        Optional<Address> optAddress = addressRepo.findAddressByLead(lead);
+        address = optAddress.orElse(new Address());
+
+        Optional<Contact> optContact = contactRepo.findContactById(lead.getContactId());
+        if (optContact.isEmpty()) return;
+
+        Optional<Appointment> optAppointment = appointmentRepo.findAppointmentByLead(lead);
+        if (optAppointment.isEmpty()) return;
+
+        sendGridManager.sendFollowUpCallAlert(lead, optContact.get(), address);
     }
 
 
