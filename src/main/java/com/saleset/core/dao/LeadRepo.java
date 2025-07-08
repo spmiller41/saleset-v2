@@ -129,7 +129,7 @@ public class LeadRepo {
     }
 
     @Transactional
-    public Optional<Lead> findLeadBuAutoNumber(String autoNumber) {
+    public Optional<Lead> findLeadByAutoNumber(String autoNumber) {
         String query = "SELECT * FROM Lead l WHERE l.autoNumber = :autoNumber";
 
         try {
