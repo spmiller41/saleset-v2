@@ -7,6 +7,12 @@ import java.time.OffsetDateTime;
 
 public class ZohoAppointmentRequest {
 
+    @JsonProperty("id")
+    private String id;
+
+    @JsonProperty("Auto_Number_1")
+    private String autoNumber;
+
     @JsonProperty("First_Name")
     private String firstName;
 
@@ -78,10 +84,22 @@ public class ZohoAppointmentRequest {
 
     public void setZipCode(String zipCode) { this.zipCode = zipCode; }
 
+    public String getId() { return id; }
+
+    public void setId(String id) { this.id = id; }
+
+    public String getAutoNumber() { return autoNumber; }
+
+    public void setAutoNumber(String autoNumber) {
+        this.autoNumber = autoNumber;
+    }
+
     @Override
     public String toString() {
         return "ZohoAppointmentRequest{" +
-                "firstName='" + firstName + '\'' +
+                "id='" + id + '\'' +
+                ", autoNumber='" + autoNumber + '\'' +
+                ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
@@ -92,5 +110,5 @@ public class ZohoAppointmentRequest {
                 ", appointmentDateTime=" + appointmentDateTime +
                 '}';
     }
-
+    
 }
