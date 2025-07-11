@@ -20,6 +20,9 @@ public class Appointment {
     @Column(name = "ends_at")
     private LocalDateTime endDateTime;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
     @Column(name = "booking_source")
     private String bookingSource;
 
@@ -38,6 +41,7 @@ public class Appointment {
     public Appointment(AppointmentRequest appointmentData, Lead lead) {
         setStartDateTime(appointmentData.getStartDateTime());
         setEndDateTime(appointmentData.getEndDateTime());
+        setCreatedAt(LocalDateTime.now());
         setBookingSource(appointmentData.getBookingSource());
         setAppointmentType(appointmentData.getAppointmentType());
         setBookingReference(appointmentData.getBookingReference());
@@ -47,6 +51,7 @@ public class Appointment {
     public void updateAppointmentDateTime(AppointmentRequest appointmentData) {
         setStartDateTime(appointmentData.getStartDateTime());
         setEndDateTime(appointmentData.getEndDateTime());
+        setCreatedAt(LocalDateTime.now());
     }
 
     public int getId() { return id; }
@@ -60,6 +65,10 @@ public class Appointment {
     public LocalDateTime getEndDateTime() { return endDateTime; }
 
     public void setEndDateTime(LocalDateTime endDateTime) { this.endDateTime = endDateTime; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public String getBookingSource() { return bookingSource; }
 
@@ -83,6 +92,7 @@ public class Appointment {
                 "id=" + id +
                 ", startDateTime=" + startDateTime +
                 ", endDateTime=" + endDateTime +
+                ", createdAt=" + createdAt +
                 ", bookingSource='" + bookingSource + '\'' +
                 ", appointmentType='" + appointmentType + '\'' +
                 ", bookingReference='" + bookingReference + '\'' +
