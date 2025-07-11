@@ -130,7 +130,7 @@ public class LeadRepo {
 
     @Transactional
     public Optional<Lead> findLeadByAutoNumber(String autoNumber) {
-        String query = "SELECT l FROM Lead l WHERE l.autoNumber = :autoNumber";
+        String query = "SELECT l FROM Lead l WHERE l.zcrmAutoNumber = :autoNumber";
 
         try {
             Lead lead = entityManager.createQuery(query, Lead.class)
