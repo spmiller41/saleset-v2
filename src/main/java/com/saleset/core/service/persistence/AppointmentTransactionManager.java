@@ -30,30 +30,35 @@ public class AppointmentTransactionManager {
     }
 
     /**
-     * Upserts an appointment for an existing lead (identified by its booking UUID):
-     * if an appointment already exists, updates its date/time; otherwise inserts a new one.
-     * Then marks the lead as CONVERTED and returns both the updated lead and the upserted appointment.
+     * Schedules an appointment for an existing lead using the booking UUID.
+     * Internally calls upsertAppointment, which creates or updates the appointment
+     * and marks the lead as CONVERTED.
      *
-     * @param appointmentData the appointment details, including the lead’s booking UUID
+     * @param appointmentData details of the appointment, including the lead’s booking UUID
      * @return an Optional containing the AppointmentResult (lead + appointment) if the lead was found; otherwise Optional.empty()
      */
     @Transactional
     public Optional<AppointmentResult> scheduleAppointmentForExistingLead(AppointmentRequest appointmentData) {
         return leadRepo.findLeadByUUID(appointmentData.getLeadBookingUUID())
-                .flatMap(lead -> {
+                .map(lead -> {
                     Appointment appointment = upsertAppointment(lead, appointmentData);
-
-                    lead.setCurrentStage(LeadStage.CONVERTED.toString());
-                    return leadRepo.safeUpdate(lead)
-                            .map(updatedLead -> {
-                                logger.info("Lead stage updated to CONVERTED for Lead: {}", updatedLead.getId());
-                                // 3) return both the updated lead and the appointment
-                                return new AppointmentResult(updatedLead, appointment);
-                            });
+                    return new AppointmentResult(lead, appointment); // Lead already updated inside upsert
                 });
     }
 
+    /**
+     * Creates or updates an appointment for the given lead. Always sets the lead stage to CONVERTED.
+     * If an appointment already exists, updates its datetime; otherwise inserts a new one.
+     *
+     * @param lead the lead for whom the appointment is being created or updated
+     * @param appointmentData the appointment details
+     * @return the upserted Appointment
+     */
     public Appointment upsertAppointment(Lead lead, AppointmentRequest appointmentData) {
+        // Always set the lead to CONVERTED when booking an appointment
+        lead.setCurrentStage(LeadStage.CONVERTED.toString());
+        leadRepo.safeUpdate(lead);
+
         return appointmentRepo.findAppointmentByLead(lead)
                 .map(existingAppointment -> {
                     existingAppointment.updateAppointmentDateTime(appointmentData);
