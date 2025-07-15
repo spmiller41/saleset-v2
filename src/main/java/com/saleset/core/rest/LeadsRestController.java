@@ -46,15 +46,15 @@ public class LeadsRestController {
     @PostMapping("/lead_opt_out")
     public ResponseEntity<Map<String, String>> optOutLead(@RequestBody LeadRequest leadData) {
         Map<String, String> response = new HashMap<>();
-        Optional<Lead> optLead = leadRepo.findLeadByExternalId(leadData.getZcrmExternalId());
 
         try {
+            Optional<Lead> optLead = leadRepo.findLeadByExternalId(leadData.getZcrmExternalId());
             if (optLead.isEmpty()) {
                 optLead = leadRepo.findLeadByAutoNumber(leadData.getZcrmAutoNumber());
                 if (optLead.isEmpty()) {
                     response.put("status", "error");
                     response.put("message", "Lead not found");
-                    return ResponseEntity.notFound().build();
+                    return ResponseEntity.status(404).body(response);
                 }
             }
 
@@ -62,22 +62,25 @@ public class LeadsRestController {
             if (optContact.isEmpty()) {
                 response.put("status", "error");
                 response.put("message", "Contact not found");
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(404).body(response);
             }
 
-            leadRepo.findLeadByContact(optContact.get()).forEach(lead -> {
+            List<Lead> associatedLeads = leadRepo.findLeadByContact(optContact.get());
+            associatedLeads.forEach(lead -> {
                 lead.setCurrentStage(LeadStage.DNC.toString());
                 leadRepo.safeUpdate(lead);
             });
 
+            response.put("status", "success");
+            response.put("message", "Lead(s) successfully marked as DNC");
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
-            logger.error("Unexpected error during processing the lead dnc", ex);
+            logger.error("Unexpected error during processing the lead DNC", ex);
             response.put("status", "error");
             response.put("message", "Internal server error occurred.");
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(500).body(response);
         }
-
     }
+
 
 }
