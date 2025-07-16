@@ -1,6 +1,7 @@
 package com.saleset.core.service.outreach.task;
 
 import com.saleset.core.entities.Lead;
+import com.saleset.core.enums.LeadStage;
 import com.saleset.core.service.outreach.Dispatcher;
 import com.saleset.core.service.persistence.leads.LeadEngagementManager;
 import jakarta.annotation.PostConstruct;
@@ -53,9 +54,10 @@ public class LeadOutreachTask {
     /*
      * Executes the lead outreach task:
      * - Retrieves leads due for follow-up within the configured time window.
+     * - Filters out any leads in excluded stages (e.g. DNC or Converted) as a safety check.
      * - Ensures each contact receives only one follow-up per run, even if tied to multiple leads.
-     * - Sends SMS follow-ups via the Dispatcher.
-     * - Updates engagement metadata such as next follow-up time, stage, and follow-up count.
+     * - Sends SMS follow-ups and email alerts via the Dispatcher.
+     * - Updates engagement metadata such as next-follow-up time, stage, and follow-up count.
      */
     private void runOutreachTask() {
         logger.info("Task Executed: {}", LocalDateTime.now());
@@ -63,17 +65,28 @@ public class LeadOutreachTask {
         List<Lead> leadList = engagementManager.scanForFollowUpLeads(taskConfig.getFollowUpWindowMinutes());
         Set<Integer> contactedContactIds = new HashSet<>();
 
-        leadList.forEach(lead -> {
-            // Only dispatch follow-up if this contact hasn't already been processed during this task run
-            if (contactedContactIds.add(lead.getContactId())) {
-                // Follow-up with lead via sms.
-                dispatcher.executeSmsFollowUp(lead);
-
-                // Notify ambassador for follow-up via phone.
-                dispatcher.executeFollowUpEmail(lead);
-            }
-            engagementManager.handleFollowUpExecution(lead);
-        });
+        leadList.stream()
+                // drop anything in excluded stages - the repo method should already exclude -> this is a 2nd check.
+                .filter(lead -> {
+                    boolean isExcluded = EXCLUDED_STAGES.contains(lead.getCurrentStage());
+                    if (isExcluded) {
+                        logger.debug("Skipping excluded-stage lead {} [{}]", lead.getId(), lead.getCurrentStage());
+                    }
+                    return !isExcluded;
+                })
+                .forEach(lead -> {
+                    // Only dispatch follow-up once per contact
+                    if (contactedContactIds.add(lead.getContactId())) {
+                        dispatcher.executeSmsFollowUp(lead);
+                        dispatcher.executeFollowUpEmail(lead);
+                    }
+                    engagementManager.handleFollowUpExecution(lead);
+                });
     }
+
+    private static final Set<String> EXCLUDED_STAGES = Set.of(
+            LeadStage.DNC.toString(),
+            LeadStage.CONVERTED.toString()
+    );
 
 }
