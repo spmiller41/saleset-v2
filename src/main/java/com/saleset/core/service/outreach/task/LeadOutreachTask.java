@@ -66,11 +66,13 @@ public class LeadOutreachTask {
         Set<Integer> contactedContactIds = new HashSet<>();
 
         leadList.stream()
-                // drop anything in excluded stages - the repo method should already exclude -> this is a 2nd check.
+                // belt‑and‑suspenders: drop anything in excluded stages (trimmed to remove any padding)
                 .filter(lead -> {
-                    boolean isExcluded = EXCLUDED_STAGES.contains(lead.getCurrentStage());
+                    String rawStage = lead.getCurrentStage();
+                    String stage = rawStage != null ? rawStage.trim() : "";
+                    boolean isExcluded = EXCLUDED_STAGES.contains(stage);
                     if (isExcluded) {
-                        logger.debug("Skipping excluded-stage lead {} [{}]", lead.getId(), lead.getCurrentStage());
+                        logger.debug("Skipping excluded-stage lead {} [{}]", lead.getId(), stage);
                     }
                     return !isExcluded;
                 })
