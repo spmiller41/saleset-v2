@@ -75,6 +75,7 @@ public class SendGridManager {
         personalization.addDynamicTemplateData("crm_lead_id", lead.getZcrmExternalId());
         personalization.addDynamicTemplateData("date", DateTimeFormatting.toFormattedDate(appointment.getStartDateTime()));
         personalization.addDynamicTemplateData("time", DateTimeFormatting.toFormattedTime(appointment.getEndDateTime()));
+        personalization.addDynamicTemplateData("appointment_type", appointment.getAppointmentType());
 
 
         // Set personalization
