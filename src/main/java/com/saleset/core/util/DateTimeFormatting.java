@@ -2,16 +2,22 @@ package com.saleset.core.util;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class DateTimeFormatting {
 
     public static String toFormattedDate(LocalDateTime dateTime) {
-        return dateTime.format(DateTimeFormatter.ofPattern("MMMM d"));
+        ZonedDateTime estDateTime = dateTime.atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(ZoneId.of("America/New_York"));
+        return estDateTime.format(DateTimeFormatter.ofPattern("MMMM d"));
     }
 
     public static String toFormattedTime(LocalDateTime dateTime) {
-        return dateTime.format(DateTimeFormatter.ofPattern("h:mm a"));
+        ZonedDateTime estDateTime = dateTime.atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(ZoneId.of("America/New_York"));
+        return estDateTime.format(DateTimeFormatter.ofPattern("h:mm a"));
     }
 
     public static String toFormattedDate(String timestamp) {
