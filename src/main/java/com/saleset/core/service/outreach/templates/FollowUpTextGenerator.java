@@ -135,6 +135,13 @@ public class FollowUpTextGenerator {
                     
                     Or feel free to call or text back at your convenience.
                     """, leadFirstName, dayOfWeek, SOLAR_INFO_LINK, bookingLink);
+            case 12 -> String.format("""
+                    Hello %s! %s from Power Solutions again. I just wanted to remind you that you may use the link below to reserve a timeslot with us. We would love to discuss the possibilities of going solar with you.
+                    
+                    %s
+                    
+                    If you prefer, you may call or text back and I'd be happy to help.
+                    """, leadFirstName, AMBASSADOR_NAME, bookingLink);
             default -> String.format("""
                     Greetings, %s! It’s %s from Power Solutions. We’re still here to explore solar options with you. If you're up for a chat, our booking link below offers both in-home and virtual assessments at your convenience.
                     
@@ -189,7 +196,35 @@ public class FollowUpTextGenerator {
                     You may use this link to book an assessment (we offer in-home, virtual, telephone): %s
                     
                     If you would like to opt-out from further communication, just reply 'STOP', or let me know otherwise.""", leadFirstName, AMBASSADOR_NAME, bookingLink);
-
+            case 5 -> String.format("""
+                    Good %s %s, %s with Power Solutions again. With the 30 percent federal tax incentive leaving at the end of the year, I'd like to remind you that you may use the link below to reserve an appointment with us:
+                    
+                    %s
+                    
+                    Or you may call or text back at your convenience.
+                    """, periodOfDay, leadFirstName, AMBASSADOR_NAME, bookingLink);
+            case 6 -> String.format("""
+                    Hi %s, I hope your %s is going well. I wanted to forward some information regarding solar. You may check it out using this link here: %s
+                    
+                    To reserve a timeslot to discuss solar with us, you may use this booking link:
+                    
+                    %s
+                    
+                    Or feel free to call or text back at your convenience.
+                    """, leadFirstName, dayOfWeek, SOLAR_INFO_LINK, bookingLink);
+            case 7 -> String.format("""
+                    Good %s %s, it's %s from Power Solutions. Our appointment slots are quickly filling up. Here's a quick guide on going solar, including the 30 percent Federal Tax incentive: %s
+                    
+                    To access our booking page to choose an in-home or virtual assessment, you may use the link below:
+                    %s
+                    
+                    Happy %s!""", periodOfDay, leadFirstName, AMBASSADOR_NAME, SOLAR_INFO_LINK, bookingLink, dayOfWeek);
+            case 8 -> String.format("""
+                    Hello %s, %s with Power Solutions here. I've been going over our older inquiries again and noticed you're still in our system. To discuss the possibilities of going solar, you may reserve a timeslot with the booking link below:
+                    
+                    %s
+                    
+                    You may also call or text back at your convenience and I'd be happy to help!""", leadFirstName, AMBASSADOR_NAME, bookingLink);
             default -> String.format("""
                     Greetings, %s! It’s %s from Power Solutions. We’re still here to explore solar options with you in your area. If you're up for a chat, our booking link below offers both in-home and virtual assessments at your convenience.
                     
