@@ -9,15 +9,11 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeFormatting {
 
     public static String toFormattedDate(LocalDateTime dateTime) {
-        ZonedDateTime estDateTime = dateTime.atZone(ZoneId.of("UTC"))
-                .withZoneSameInstant(ZoneId.of("America/New_York"));
-        return estDateTime.format(DateTimeFormatter.ofPattern("MMMM d"));
+        return dateTime.format(DateTimeFormatter.ofPattern("MMMM d"));
     }
 
     public static String toFormattedTime(LocalDateTime dateTime) {
-        ZonedDateTime estDateTime = dateTime.atZone(ZoneId.of("UTC"))
-                .withZoneSameInstant(ZoneId.of("America/New_York"));
-        return estDateTime.format(DateTimeFormatter.ofPattern("h:mm a"));
+        return dateTime.format(DateTimeFormatter.ofPattern("h:mm a"));
     }
 
     public static String toFormattedDate(String timestamp) {
