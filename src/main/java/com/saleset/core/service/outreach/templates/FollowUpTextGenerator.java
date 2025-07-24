@@ -142,6 +142,13 @@ public class FollowUpTextGenerator {
                     
                     If you prefer, you may call or text back and I'd be happy to help.
                     """, leadFirstName, AMBASSADOR_NAME, bookingLink);
+            case 13 -> String.format("""
+                    Good %s %s, %s with Power Solutions again. I'm just sending out reminders about the 30 percent federal tax incentive leaving at the end of the year.
+                    
+                    To discuss the possibilities of going solar before the year is up, you may reserve a timeslot using the booking link below:
+                    
+                    %s
+                    """, periodOfDay, leadFirstName, AMBASSADOR_NAME, bookingLink);
             default -> String.format("""
                     Greetings, %s! It’s %s from Power Solutions. We’re still here to explore solar options with you. If you're up for a chat, our booking link below offers both in-home and virtual assessments at your convenience.
                     
@@ -225,6 +232,13 @@ public class FollowUpTextGenerator {
                     %s
                     
                     You may also call or text back at your convenience and I'd be happy to help!""", leadFirstName, AMBASSADOR_NAME, bookingLink);
+            case 9 -> String.format("""
+                    Good %s %s, %s with Power Solutions again. I'm just sending out reminders about the 30 percent federal tax incentive leaving at the end of the year.
+                    
+                    To discuss the possibilities of going solar before the year is up, you may reserve a timeslot using the booking link below:
+                    
+                    %s
+                    """, periodOfDay, leadFirstName, AMBASSADOR_NAME, bookingLink);
             default -> String.format("""
                     Greetings, %s! It’s %s from Power Solutions. We’re still here to explore solar options with you in your area. If you're up for a chat, our booking link below offers both in-home and virtual assessments at your convenience.
                     
